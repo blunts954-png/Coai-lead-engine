@@ -41,6 +41,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .field input:focus,.field select:focus{border-color:var(--green);}
 .field select option{background:var(--surface2);}
 .field input::placeholder{color:var(--muted);}
+.field small{display:block;color:var(--muted);font-size:10px;line-height:1.4;margin-top:4px;}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.options-grid .field{margin-bottom:0;}
+.check-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.check-row input[type="checkbox"]{accent-color:var(--green);}
+.check-row label{font-size:11px;color:var(--white);}
 
 /* VERTICAL GROUPS */
 .vertical-group{margin-bottom:1rem;}
@@ -392,35 +398,243 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         </div>
       </div>
 
+      <!-- SENIOR / CARE -->
+      <div class="vertical-group">
+        <div class="vertical-header">
+          <span class="vertical-name vn-medical">👵 Senior Living & Care</span>
+          <button class="vn-select-all" onclick="toggleVertical('senior')">All</button>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-btn" data-cat="assisted living facility" data-vertical="senior" onclick="toggleCat(this)">Assisted Living</div>
+          <div class="cat-btn" data-cat="memory care facility" data-vertical="senior" onclick="toggleCat(this)">Memory Care</div>
+          <div class="cat-btn" data-cat="skilled nursing facility" data-vertical="senior" onclick="toggleCat(this)">Skilled Nursing</div>
+          <div class="cat-btn" data-cat="independent living community" data-vertical="senior" onclick="toggleCat(this)">Independent Living</div>
+          <div class="cat-btn" data-cat="in home care service" data-vertical="senior" onclick="toggleCat(this)">In-Home Care</div>
+          <div class="cat-btn" data-cat="hospice care" data-vertical="senior" onclick="toggleCat(this)">Hospice Care</div>
+          <div class="cat-btn" data-cat="adult day care center" data-vertical="senior" onclick="toggleCat(this)">Adult Day Care</div>
+        </div>
+      </div>
+
+      <!-- EMERGING TECH / SERVICES -->
+      <div class="vertical-group">
+        <div class="vertical-header">
+          <span class="vertical-name vn-biz">🧠 Emerging Tech/Biz</span>
+          <button class="vn-select-all" onclick="toggleVertical('emerging')">All</button>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-btn" data-cat="ai consulting" data-vertical="emerging" onclick="toggleCat(this)">AI Consulting</div>
+          <div class="cat-btn" data-cat="cybersecurity service" data-vertical="emerging" onclick="toggleCat(this)">Cybersecurity</div>
+          <div class="cat-btn" data-cat="coworking space" data-vertical="emerging" onclick="toggleCat(this)">Co-working Space</div>
+          <div class="cat-btn" data-cat="notary public" data-vertical="emerging" onclick="toggleCat(this)">Notary Public</div>
+          <div class="cat-btn" data-cat="mobile notary" data-vertical="emerging" onclick="toggleCat(this)">Mobile Notary</div>
+          <div class="cat-btn" data-cat="staffing agency" data-vertical="emerging" onclick="toggleCat(this)">Staffing / HR</div>
+        </div>
+      </div>
+
+      <!-- INFRASTRUCTURE SPECIALTY -->
+      <div class="vertical-group">
+        <div class="vertical-header">
+          <span class="vertical-name vn-home">⚡ Infrastructure</span>
+          <button class="vn-select-all" onclick="toggleVertical('infra')">All</button>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-btn" data-cat="smart home installation" data-vertical="infra" onclick="toggleCat(this)">Smart Home Install</div>
+          <div class="cat-btn" data-cat="battery storage installation" data-vertical="infra" onclick="toggleCat(this)">Battery Storage</div>
+          <div class="cat-btn" data-cat="mold remediation" data-vertical="infra" onclick="toggleCat(this)">Mold Remediation</div>
+          <div class="cat-btn" data-cat="biohazard remediation" data-vertical="infra" onclick="toggleCat(this)">Bio Remediation</div>
+          <div class="cat-btn" data-cat="locksmith" data-vertical="infra" onclick="toggleCat(this)">Locksmith</div>
+        </div>
+      </div>
+
+      <!-- LIFESTYLE -->
+      <div class="vertical-group" style="margin-bottom:0;">
+        <div class="vertical-header">
+          <span class="vertical-name vn-retail">🎯 Lifestyle / Specialty</span>
+          <button class="vn-select-all" onclick="toggleVertical('lifestyle')">All</button>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-btn" data-cat="pet grooming" data-vertical="lifestyle" onclick="toggleCat(this)">Pet Grooming</div>
+          <div class="cat-btn" data-cat="pet boarding service" data-vertical="lifestyle" onclick="toggleCat(this)">Pet Boarding</div>
+          <div class="cat-btn" data-cat="mobile detailing service" data-vertical="lifestyle" onclick="toggleCat(this)">Mobile Detailing</div>
+          <div class="cat-btn" data-cat="catering service" data-vertical="lifestyle" onclick="toggleCat(this)">Events / Catering</div>
+          <div class="cat-btn" data-cat="wedding planner" data-vertical="lifestyle" onclick="toggleCat(this)">Wedding Planner</div>
+          <div class="cat-btn" data-cat="rehabilitation center" data-vertical="lifestyle" onclick="toggleCat(this)">Rehab / Recovery</div>
+          <div class="cat-btn" data-cat="detox center" data-vertical="lifestyle" onclick="toggleCat(this)">Detox Center</div>
+        </div>
+      </div>
+
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Lead Filters</div>
-      <div class="field">
-        <label>Min Reviews</label>
-        <select id="min-reviews">
-          <option value="0">Any (including 0)</option>
-          <option value="1" selected>At least 1 review</option>
-          <option value="5">5+ reviews</option>
-          <option value="10">10+ reviews</option>
-        </select>
+      <div class="sidebar-label">Advanced Options Panel</div>
+      <div class="options-grid">
+        <div class="field">
+          <label>Results / Category</label>
+          <select id="results-count">
+            <option value="20">20</option>
+            <option value="40" selected>40</option>
+            <option value="60">60</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Min Opportunity Score</label>
+          <select id="min-score">
+            <option value="0">0+</option>
+            <option value="25">25+</option>
+            <option value="40">40+</option>
+            <option value="50">50+ (Hot only)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Min Reviews</label>
+          <select id="min-reviews">
+            <option value="0">Any</option>
+            <option value="1" selected>1+</option>
+            <option value="5">5+</option>
+            <option value="10">10+</option>
+            <option value="25">25+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Max Reviews</label>
+          <select id="max-reviews">
+            <option value="999999" selected>No cap</option>
+            <option value="50">50 or less</option>
+            <option value="25">25 or less</option>
+            <option value="10">10 or less</option>
+            <option value="5">5 or less</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Min Rating</label>
+          <select id="min-rating">
+            <option value="0" selected>Any (incl no rating)</option>
+            <option value="2">2.0+</option>
+            <option value="3">3.0+</option>
+            <option value="4">4.0+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Max Rating</label>
+          <select id="max-rating">
+            <option value="5">Any</option>
+            <option value="4" selected>4.0 or less</option>
+            <option value="3.5">3.5 or less</option>
+            <option value="3">3.0 or less</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Website Mode</label>
+          <select id="website-mode">
+            <option value="any" selected>Any</option>
+            <option value="no">No website only</option>
+            <option value="yes">Has website only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Phone Mode</label>
+          <select id="phone-mode">
+            <option value="any" selected>Any</option>
+            <option value="no">No phone only</option>
+            <option value="yes">Has phone only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Review Profile</label>
+          <select id="review-mode">
+            <option value="any" selected>Any</option>
+            <option value="zero">0 reviews only</option>
+            <option value="low">Low-review only</option>
+            <option value="active">10+ reviews only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Low-Review Threshold</label>
+          <select id="low-review-threshold">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Open Now</label>
+          <select id="open-now-mode">
+            <option value="any" selected>Any</option>
+            <option value="yes">Open now only</option>
+            <option value="no">Closed now only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Business Status</label>
+          <select id="business-status">
+            <option value="any" selected>Any</option>
+            <option value="OPERATIONAL">Operational</option>
+            <option value="CLOSED_TEMPORARILY">Temporarily closed</option>
+            <option value="CLOSED_PERMANENTLY">Permanently closed</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Name Contains</label>
+          <input id="name-contains" type="text" placeholder="e.g. senior, express"/>
+        </div>
+        <div class="field">
+          <label>Must Include Keyword</label>
+          <input id="include-keyword" type="text" placeholder="e.g. mobile"/>
+        </div>
+        <div class="field">
+          <label>Exclude Keyword</label>
+          <input id="exclude-keyword" type="text" placeholder="e.g. franchise"/>
+        </div>
+        <div class="field">
+          <label>Address Contains</label>
+          <input id="address-contains" type="text" placeholder="e.g. downtown"/>
+        </div>
+        <div class="field">
+          <label>Name Min Length</label>
+          <input id="name-min-length" type="number" min="0" value="0"/>
+        </div>
+        <div class="field">
+          <label>Name Max Length</label>
+          <input id="name-max-length" type="number" min="1" value="80"/>
+        </div>
       </div>
-      <div class="field">
-        <label>Max Rating (shows pain)</label>
-        <select id="max-rating">
-          <option value="5">Any rating</option>
-          <option value="4" selected>Under 4.0 stars</option>
-          <option value="3.5">Under 3.5 stars</option>
-          <option value="3">Under 3.0 stars</option>
-        </select>
+      <div class="check-row">
+        <input type="checkbox" id="require-street-number"/>
+        <label for="require-street-number">Require street number in address</label>
       </div>
-      <div class="field">
-        <label>Results Per Category</label>
-        <select id="results-count">
-          <option value="20">20 per category</option>
-          <option value="40" selected>40 per category (paginated)</option>
-          <option value="60">60 per category (max)</option>
-        </select>
+      <div class="check-row">
+        <input type="checkbox" id="dedupe-name-address" checked/>
+        <label for="dedupe-name-address">Dedupe by normalized name + address</label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="enrich-after-scan" checked/>
+        <label for="enrich-after-scan">Auto-enrich websites after scan</label>
+      </div>
+      <div class="options-grid">
+        <div class="field">
+          <label>No Website Score</label>
+          <input id="weight-no-website" type="number" min="0" value="40"/>
+        </div>
+        <div class="field">
+          <label>Low Rating Score</label>
+          <input id="weight-low-rating" type="number" min="0" value="25"/>
+        </div>
+        <div class="field">
+          <label>No Rating Score</label>
+          <input id="weight-no-rating" type="number" min="0" value="20"/>
+        </div>
+        <div class="field">
+          <label>Low Review Score</label>
+          <input id="weight-low-reviews" type="number" min="0" value="15"/>
+        </div>
+        <div class="field">
+          <label>No Phone Score</label>
+          <input id="weight-no-phone" type="number" min="0" value="10"/>
+        </div>
+        <div class="field">
+          <label>Zero Review Score</label>
+          <input id="weight-zero-reviews" type="number" min="0" value="10"/>
+        </div>
       </div>
     </div>
 
@@ -600,7 +814,12 @@ function clearAllCats(){
 // ─── HOT ONLY (highest opportunity categories) ───
 function selectHotOnly(){
   clearAllCats();
-  const hot = ['hvac','plumber','electrician','roofing contractor','auto repair','dentist','pest control','landscaping','house cleaning','tattoo shop','hair salon','barber shop'];
+  const hot = [
+    'hvac','plumber','electrician','roofing contractor','auto repair',
+    'dentist','pest control','landscaping','house cleaning','tattoo shop',
+    'hair salon','barber shop','locksmith','mobile detailing service',
+    'assisted living facility','in home care service','staffing agency','ai consulting'
+  ];
   hot.forEach(cat => {
     activeCats.add(cat);
     const btn = document.querySelector(`[data-cat="${cat}"]`);
@@ -621,6 +840,89 @@ async function gFetch(googleUrl){
 
 // ─── SLEEP ───
 function sleep(ms){return new Promise(r => setTimeout(r, ms));}
+
+function parseNum(id, fallback){
+  const raw = document.getElementById(id)?.value;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function getSearchOptions(){
+  return {
+    resultsCount: parseNum('results-count', 40),
+    minScore: parseNum('min-score', 0),
+    minReviews: parseNum('min-reviews', 0),
+    maxReviews: parseNum('max-reviews', 999999),
+    minRating: parseNum('min-rating', 0),
+    maxRating: parseNum('max-rating', 5),
+    websiteMode: document.getElementById('website-mode').value,
+    phoneMode: document.getElementById('phone-mode').value,
+    reviewMode: document.getElementById('review-mode').value,
+    lowReviewThreshold: parseNum('low-review-threshold', 10),
+    openNowMode: document.getElementById('open-now-mode').value,
+    businessStatus: document.getElementById('business-status').value,
+    nameContains: document.getElementById('name-contains').value.trim().toLowerCase(),
+    includeKeyword: document.getElementById('include-keyword').value.trim().toLowerCase(),
+    excludeKeyword: document.getElementById('exclude-keyword').value.trim().toLowerCase(),
+    addressContains: document.getElementById('address-contains').value.trim().toLowerCase(),
+    nameMinLength: parseNum('name-min-length', 0),
+    nameMaxLength: parseNum('name-max-length', 80),
+    requireStreetNumber: document.getElementById('require-street-number').checked,
+    dedupeNameAddress: document.getElementById('dedupe-name-address').checked,
+    enrichAfterScan: document.getElementById('enrich-after-scan').checked,
+    scoreWeights: {
+      noWebsite: parseNum('weight-no-website', 40),
+      lowRating: parseNum('weight-low-rating', 25),
+      noRating: parseNum('weight-no-rating', 20),
+      lowReviews: parseNum('weight-low-reviews', 15),
+      noPhone: parseNum('weight-no-phone', 10),
+      zeroReviews: parseNum('weight-zero-reviews', 10)
+    }
+  };
+}
+
+function buildBizKey(lead){
+  const clean = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return clean(lead.name) + '|' + clean(lead.address);
+}
+
+function passesSearchOptions(lead, place, opts){
+  if(lead.score < opts.minScore) return false;
+  if(lead.reviews < opts.minReviews || lead.reviews > opts.maxReviews) return false;
+  if(lead.rating > 0){
+    if(lead.rating < opts.minRating || lead.rating > opts.maxRating) return false;
+  }else if(opts.minRating > 0){
+    return false;
+  }
+
+  if(opts.websiteMode === 'no' && lead.hasWebsite) return false;
+  if(opts.websiteMode === 'yes' && !lead.hasWebsite) return false;
+  if(opts.phoneMode === 'no' && lead.hasPhone) return false;
+  if(opts.phoneMode === 'yes' && !lead.hasPhone) return false;
+
+  if(opts.reviewMode === 'zero' && lead.reviews !== 0) return false;
+  if(opts.reviewMode === 'low' && lead.reviews >= opts.lowReviewThreshold) return false;
+  if(opts.reviewMode === 'active' && lead.reviews < 10) return false;
+
+  const openNow = place?.opening_hours?.open_now;
+  if(opts.openNowMode === 'yes' && openNow !== true) return false;
+  if(opts.openNowMode === 'no' && openNow !== false) return false;
+
+  const status = place?.business_status || 'UNKNOWN';
+  if(opts.businessStatus !== 'any' && status !== opts.businessStatus) return false;
+
+  const name = (lead.name || '').toLowerCase();
+  const address = (lead.address || '').toLowerCase();
+  const haystack = `${name} ${address}`;
+  if(opts.nameContains && !name.includes(opts.nameContains)) return false;
+  if(opts.includeKeyword && !haystack.includes(opts.includeKeyword)) return false;
+  if(opts.excludeKeyword && haystack.includes(opts.excludeKeyword)) return false;
+  if(opts.addressContains && !address.includes(opts.addressContains)) return false;
+  if(name.length < opts.nameMinLength || name.length > opts.nameMaxLength) return false;
+  if(opts.requireStreetNumber && !/\d/.test(lead.address || '')) return false;
+
+  return true;
+}
 
 // ─── PAGINATED NEARBY SEARCH ───
 async function fetchCategoryLeads(cat, lat, lng, radius, apiKey, maxResults){
@@ -665,7 +967,8 @@ async function runSearch(){
 
   const location = document.getElementById('location').value.trim() || 'Bakersfield, CA';
   const radius = document.getElementById('radius').value;
-  const resultsCount = parseInt(document.getElementById('results-count').value);
+  const opts = getSearchOptions();
+  const resultsCount = opts.resultsCount;
 
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('leads-container').innerHTML = '';
@@ -702,6 +1005,7 @@ async function runSearch(){
     }
 
     const cats = Array.from(activeCats);
+    const seenBizKeys = new Set();
     let processed = 0;
 
     for(const cat of cats){
@@ -713,9 +1017,15 @@ async function runSearch(){
       try{
         const places = await fetchCategoryLeads(cat, lat, lng, radius, apiKey, resultsCount);
         places.forEach(place => {
-          if(!allLeads.find(l => l.id === place.place_id)){
-            allLeads.push(buildLead(place, cat));
+          const lead = buildLead(place, cat, opts);
+          if(!passesSearchOptions(lead, place, opts)) return;
+          if(allLeads.find(l => l.id === place.place_id)) return;
+          if(opts.dedupeNameAddress){
+            const key = buildBizKey(lead);
+            if(seenBizKeys.has(key)) return;
+            seenBizKeys.add(key);
           }
+          allLeads.push(lead);
         });
         scannedCatCount++;
       }catch(catErr){
@@ -745,7 +1055,7 @@ async function runSearch(){
     updateExportInfo();
 
     // Auto-enrich all leads with websites in background
-    enrichAllLeads();
+    if(opts.enrichAfterScan) enrichAllLeads();
 
   }catch(err){
     document.getElementById('loading-wrap').style.display = 'none';
@@ -756,19 +1066,22 @@ async function runSearch(){
 }
 
 // ─── BUILD LEAD ───
-function buildLead(place, cat){
+function buildLead(place, cat, opts){
   const hasWebsite = !!place.website;
   const rating = place.rating || 0;
   const reviews = place.user_ratings_total || 0;
   const hasPhone = !!place.formatted_phone_number;
+  const weights = opts?.scoreWeights || {
+    noWebsite: 40, lowRating: 25, noRating: 20, lowReviews: 15, noPhone: 10, zeroReviews: 10
+  };
 
   let score = 0;
-  if(!hasWebsite) score += 40;
-  if(rating > 0 && rating < 3.5) score += 25;
-  if(rating === 0) score += 20;
-  if(reviews < 10) score += 15;
-  if(!hasPhone) score += 10;
-  if(reviews === 0) score += 10;
+  if(!hasWebsite) score += weights.noWebsite;
+  if(rating > 0 && rating < 3.5) score += weights.lowRating;
+  if(rating === 0) score += weights.noRating;
+  if(reviews < (opts?.lowReviewThreshold || 10)) score += weights.lowReviews;
+  if(!hasPhone) score += weights.noPhone;
+  if(reviews === 0) score += weights.zeroReviews;
 
   const signals = [];
   if(!hasWebsite) signals.push({label:'No Website', type:'bad'});

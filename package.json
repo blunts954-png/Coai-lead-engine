@@ -1,0 +1,12 @@
+{
+  "name": "coai-leads",
+  "private": true,
+  "version": "1.0.0",
+  "description": "COAI Leads API functions",
+  "type": "commonjs",
+  "dependencies": {
+    "@sparticuz/chromium": "^123.0.1",
+    "libphonenumber-js": "^1.12.41",
+    "puppeteer-core": "^24.6.0"
+  }
+}
