@@ -29,7 +29,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .god-badge{background:linear-gradient(135deg,rgba(255,184,0,0.2),rgba(255,59,48,0.2));border:1px solid rgba(255,184,0,0.35);color:var(--amber);font-family:var(--mono);font-size:9px;letter-spacing:0.12em;padding:3px 10px;border-radius:2px;}
 
 /* LAYOUT */
-.app{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 56px);}
+.app{display:grid;grid-template-columns:minmax(300px,400px) 1fr;height:calc(100vh - 56px);}
 
 /* SIDEBAR */
 .sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
@@ -47,6 +47,16 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .check-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .check-row input[type="checkbox"]{accent-color:var(--green);}
 .check-row label{font-size:11px;color:var(--white);}
+.sidebar-details{border-bottom:1px solid var(--border);}
+.sidebar-details > summary{
+  list-style:none;cursor:pointer;padding:1rem 1.4rem;font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;
+  display:flex;align-items:center;justify-content:space-between;user-select:none;
+}
+.sidebar-details > summary::-webkit-details-marker{display:none;}
+.sidebar-details > summary::after{content:'▸';font-size:10px;color:var(--muted);transition:transform 0.15s;}
+.sidebar-details[open] > summary::after{transform:rotate(90deg);color:var(--green);}
+.sidebar-details .sidebar-section{border-bottom:none;padding-top:0;}
+.sidebar-details[open] .sidebar-section{padding-top:0;}
 
 /* VERTICAL GROUPS */
 .vertical-group{margin-bottom:1rem;}
@@ -231,8 +241,9 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
   <!-- SIDEBAR -->
   <div class="sidebar">
 
+    <details class="sidebar-details" open>
+    <summary>1 · Location &amp; radius</summary>
     <div class="sidebar-section">
-      <div class="sidebar-label">Target Location</div>
       <div class="field">
         <label>City / Area</label>
         <input type="text" id="location" value="Bakersfield, CA" placeholder="City, State"/>
@@ -248,6 +259,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         </select>
       </div>
     </div>
+    </details>
 
     <div class="global-select-row">
       <button class="gsr-btn" onclick="selectAllCats()">Select All</button>
@@ -255,8 +267,9 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
       <button class="gsr-btn" onclick="selectHotOnly()">Hot Only</button>
     </div>
 
+    <details class="sidebar-details" open>
+    <summary>2 · Industries <span id="cat-count" style="color:var(--green);font-size:10px;">0 selected</span></summary>
     <div class="sidebar-section">
-      <div class="sidebar-label">Industry Categories <span id="cat-count" style="color:var(--green);font-size:9px;">0 selected</span></div>
 
       <!-- TRADES -->
       <div class="vertical-group">
@@ -492,9 +505,16 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
       </div>
 
     </div>
+    </details>
 
+    <details class="sidebar-details">
+    <summary>3 · Advanced · filters · scoring</summary>
     <div class="sidebar-section">
-      <div class="sidebar-label">Advanced Options Panel</div>
+      <div class="check-row" style="margin-bottom:12px;">
+        <input type="checkbox" id="skip-place-details"/>
+        <label for="skip-place-details">Skip Google Place Details (faster scan, but often wrong “no website / no phone”)</label>
+      </div>
+      <div class="sidebar-label">Filters & limits</div>
       <div class="options-grid">
         <div class="field">
           <label>Results / Category</label>
@@ -665,6 +685,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         </div>
       </div>
     </div>
+    </details>
 
     <div class="sidebar-section">
       <div class="sidebar-label">API Key Required</div>
@@ -673,7 +694,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         <input type="password" id="api-key" placeholder="AIza..."/>
       </div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.6;margin-top:4px;">
-        console.cloud.google.com → Enable Places API + Geocoding API → No restrictions
+        Google Cloud → enable <strong style="color:var(--white);">Places API</strong> + <strong style="color:var(--white);">Geocoding API</strong>. Nearby Search omits most phones and websites; this app calls <strong style="color:var(--green);">Place Details</strong> per listing so data matches the Google Maps profile. Leave <strong style="color:var(--white);">Skip Place Details</strong> off unless you want a faster, less accurate scan.
       </div>
       <button class="search-btn" id="search-btn" onclick="runSearch()">
         ◉ SCAN FOR LEADS
@@ -735,7 +756,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">◉</div>
         <div class="empty-title">God Mode Ready</div>
-        <p class="empty-sub">Select your industries, set your radius, and hit Scan. Pulls up to 60 results per category with pagination.</p>
+        <p class="empty-sub">Pick industries, set radius, scan. Each result is enriched with Google Place Details (phone + website) so scores match what you see on Maps—not the thin Nearby Search payload alone.</p>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.2rem;margin-top:1rem;max-width:340px;text-align:left;">
           <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:0.14em;margin-bottom:0.75rem;">HOT LEAD SIGNALS</div>
           <div style="font-size:12px;color:var(--muted);line-height:2.1;">
@@ -1091,6 +1112,50 @@ async function gFetch(googleUrl){
 // ─── SLEEP ───
 function sleep(ms){return new Promise(r => setTimeout(r, ms));}
 
+// Nearby Search often omits website + phone; Place Details returns what you see on Maps.
+async function enrichPlaceWithDetails(place, apiKey){
+  if(!place || !place.place_id) return place;
+  const fields = [
+    'formatted_phone_number','international_phone_number','website','formatted_address',
+    'opening_hours','business_status','rating','user_ratings_total','url'
+  ].join(',');
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place.place_id)}&fields=${fields}&key=${encodeURIComponent(apiKey)}`;
+  try{
+    const data = await gFetch(url);
+    if(data.status !== 'OK' || !data.result) return place;
+    const r = data.result;
+    return {
+      ...place,
+      formatted_phone_number: r.formatted_phone_number || place.formatted_phone_number,
+      international_phone_number: r.international_phone_number || place.international_phone_number,
+      website: r.website || place.website,
+      formatted_address: r.formatted_address || place.formatted_address,
+      rating: typeof r.rating === 'number' ? r.rating : place.rating,
+      user_ratings_total: typeof r.user_ratings_total === 'number' ? r.user_ratings_total : place.user_ratings_total,
+      opening_hours: r.opening_hours || place.opening_hours,
+      business_status: r.business_status || place.business_status,
+      url: r.url || place.url,
+      _detailsOk: true
+    };
+  }catch(e){
+    console.warn('Place Details failed', place.place_id, e && e.message);
+    return place;
+  }
+}
+
+async function enrichPlacesBatch(places, apiKey, onProgress){
+  const chunk = 8;
+  const out = [];
+  for(let i = 0; i < places.length; i += chunk){
+    const slice = places.slice(i, i + chunk);
+    const batch = await Promise.all(slice.map(p => enrichPlaceWithDetails(p, apiKey)));
+    out.push(...batch);
+    if(onProgress) onProgress(Math.min(i + chunk, places.length), places.length);
+    await sleep(120);
+  }
+  return out;
+}
+
 function parseNum(id, fallback){
   const raw = document.getElementById(id)?.value;
   const n = Number(raw);
@@ -1120,6 +1185,7 @@ function getSearchOptions(){
     requireStreetNumber: document.getElementById('require-street-number').checked,
     dedupeNameAddress: document.getElementById('dedupe-name-address').checked,
     enrichAfterScan: document.getElementById('enrich-after-scan').checked,
+    skipPlaceDetails: document.getElementById('skip-place-details')?.checked || false,
     scoreWeights: {
       noWebsite: parseNum('weight-no-website', 40),
       lowRating: parseNum('weight-low-rating', 25),
@@ -1275,7 +1341,14 @@ async function runSearch(){
 
       try{
         const places = await fetchCategoryLeads(cat, lat, lng, radius, apiKey, resultsCount);
-        places.forEach(place => {
+        let placesForCat = places;
+        if(!opts.skipPlaceDetails && places.length){
+          document.getElementById('loading-text').textContent = 'LOADING LISTING DETAILS...';
+          placesForCat = await enrichPlacesBatch(places, apiKey, (done, total) => {
+            document.getElementById('loading-sub').textContent = `Place Details ${done}/${total} · ${cat}`;
+          });
+        }
+        placesForCat.forEach(place => {
           const lead = buildLead(place, cat, opts);
           if(!passesSearchOptions(lead, place, opts)) return;
           if(existingIds.has(place.place_id)) return;
@@ -1332,10 +1405,12 @@ async function runSearch(){
 
 // ─── BUILD LEAD ───
 function buildLead(place, cat, opts){
+  const detailsFromGoogle = !!place._detailsOk;
+  const phoneCombined = (place.formatted_phone_number || place.international_phone_number || '').trim();
   const hasWebsite = !!place.website;
   const rating = place.rating || 0;
   const reviews = place.user_ratings_total || 0;
-  const hasPhone = !!place.formatted_phone_number;
+  const hasPhone = !!phoneCombined;
   const weights = opts?.scoreWeights || {
     noWebsite: 40, lowRating: 25, noRating: 20, lowReviews: 15, noPhone: 10, zeroReviews: 10
   };
@@ -1357,21 +1432,26 @@ function buildLead(place, cat, opts){
   if(!hasPhone) signals.push({label:'No Phone', type:'warn'});
   if(reviews >= 10 && rating >= 4) signals.push({label:'Active Biz', type:'ok'});
   if(reviews >= 50) signals.push({label:`${reviews} Reviews`, type:'ok'});
+  if(detailsFromGoogle) signals.push({label:'Maps profile', type:'ok'});
 
   const priority = score >= 50 ? 'high' : score >= 25 ? 'med' : 'low';
+
+  const mapsUrl = place.url || `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(place.place_id)}`;
 
   return {
     id: place.place_id,
     name: place.name,
     cat,
-    address: place.vicinity || place.formatted_address || '',
+    address: (place.formatted_address || place.vicinity || '').trim(),
     rating, reviews,
     hasWebsite, website: place.website || '',
-    phone: place.formatted_phone_number || '',
+    phone: phoneCombined,
+    phoneIntl: place.international_phone_number || '',
     hasPhone,
     score, priority, signals,
     placeId: place.place_id,
-    mapsUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+    mapsUrl,
+    detailsFromGoogle,
     note: '',
     enrichedPhone: null,
     enrichedEmail: null,
