@@ -104,7 +104,35 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 
 /* MAIN PANEL */
 .main{display:flex;flex-direction:column;overflow:hidden;}
+.prospector-panel{display:flex;flex-direction:column;flex:1;min-height:0;}
 .results-wrap{flex:1;overflow-y:auto;padding:1rem 1.5rem;}
+.main-mode-bar{align-items:center;gap:10px;padding:0.55rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface);}
+.main-mode-bar .crm-persist-hint{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.06em;}
+.mode-tab{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 14px;border-radius:2px;cursor:pointer;transition:all 0.15s;}
+.mode-tab:hover{border-color:var(--border-hot);color:var(--white);}
+.mode-tab.active{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+.crm-panel{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.crm-panel.open{display:flex;}
+.crm-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:0.75rem 0;border-bottom:1px solid var(--border);}
+.crm-toolbar .field{margin-bottom:0;min-width:120px;flex:1;}
+.crm-toolbar .field.narrow{flex:0 0 140px;min-width:100px;}
+.crm-toolbar-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.crm-table-wrap{flex:1;overflow:auto;padding:0.75rem 0;}
+.crm-table{width:100%;border-collapse:collapse;font-size:12px;}
+.crm-table th,.crm-table td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+.crm-table th{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);background:var(--surface2);}
+.crm-table tr:hover td{background:rgba(255,255,255,0.02);}
+.crm-status{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:2px;text-transform:uppercase;}
+.crm-st-new{color:var(--muted);border:1px solid var(--border);}
+.crm-st-contacted{color:var(--amber);border:1px solid rgba(255,184,0,0.25);}
+.crm-st-closed{color:var(--green);border:1px solid rgba(0,255,136,0.25);}
+.crm-mini-actions{display:flex;flex-wrap:wrap;gap:4px;}
+.crm-mini-actions button,.crm-toolbar-actions button{font-family:var(--mono);font-size:8px;letter-spacing:0.06em;text-transform:uppercase;padding:4px 8px;border-radius:2px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;}
+.crm-mini-actions button:hover,.crm-toolbar-actions button:hover{border-color:var(--green);color:var(--green);}
+.crm-preview-block{margin-top:8px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;}
+.crm-preview-block .p-label{font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:0.1em;margin-bottom:6px;}
+.crm-preview-block pre{white-space:pre-wrap;font-size:11px;line-height:1.55;color:var(--white);max-height:120px;overflow:auto;margin-bottom:6px;}
+.crm-danger{border-color:rgba(255,59,48,0.35)!important;color:var(--red)!important;}
 
 /* EMPTY STATE */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:1rem;opacity:0.6;}
@@ -661,12 +689,22 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         <div class="session-stat"><span style="color:var(--muted);">Contacted</span><span id="s-contacted" style="color:var(--amber);font-family:var(--mono);">0</span></div>
         <div class="session-stat"><span style="color:var(--muted);">Closed</span><span id="s-closed" style="color:var(--green);font-family:var(--mono);">0</span></div>
       </div>
+      <div class="check-row" style="margin-top:10px;">
+        <input type="checkbox" id="crm-clear-before-scan"/>
+        <label for="crm-clear-before-scan">Clear CRM before next scan (replace all)</label>
+      </div>
     </div>
 
   </div>
 
   <!-- MAIN PANEL -->
   <div class="main">
+    <div class="main-mode-bar" id="main-mode-bar" style="display:none;">
+      <button type="button" class="mode-tab active" id="tab-prospector" onclick="setMainMode('prospector')">Prospector</button>
+      <button type="button" class="mode-tab" id="tab-crm" onclick="setMainMode('crm')">CRM</button>
+      <span class="crm-persist-hint">CRM auto-saves in this browser</span>
+    </div>
+    <div id="prospector-panel" class="prospector-panel">
     <div class="stats-row" id="stats-row" style="display:none;">
       <div class="stat-box"><div class="stat-num green" id="st-found">0</div><div class="stat-lbl">Total Found</div></div>
       <div class="stat-box"><div class="stat-num red" id="st-nosite">0</div><div class="stat-lbl">No Website</div></div>
@@ -727,6 +765,37 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         <button class="export-btn" onclick="clearAll()">✕ Clear All</button>
       </div>
     </div>
+    </div>
+
+    <div id="crm-panel" class="crm-panel">
+      <div class="crm-toolbar">
+        <div class="field" style="flex:2;min-width:180px;">
+          <label>Search</label>
+          <input type="text" id="crm-search" placeholder="Name, address, phone, email…" oninput="onCrmSearchInput()"/>
+        </div>
+        <div class="field narrow">
+          <label>Category</label>
+          <select id="crm-filter-cat" onchange="renderCRMTable()">
+            <option value="">All categories</option>
+          </select>
+        </div>
+        <div class="field narrow">
+          <label>Status</label>
+          <select id="crm-filter-status" onchange="renderCRMTable()">
+            <option value="all">All</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        <div class="crm-toolbar-actions">
+          <button type="button" onclick="crmBulkMarkContacted()">Mark contacted</button>
+          <button type="button" onclick="crmBulkMarkNew()">Mark new</button>
+          <button type="button" class="crm-danger" onclick="crmBulkDelete()">Delete selected</button>
+        </div>
+      </div>
+      <div class="crm-table-wrap" id="crm-table-wrap"></div>
+    </div>
   </div>
 
 </div>
@@ -760,6 +829,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 
 <script>
 // ─── STATE ───
+const CRM_LS_KEY = 'coai_lead_crm_v1';
 let allLeads = [];
 let currentFilter = 'all';
 let activeLead = null;
@@ -768,6 +838,186 @@ let contacted = new Set();
 let closed = new Set();
 let activeCats = new Set();
 let scannedCatCount = 0;
+let mainMode = 'prospector';
+let crmSelected = new Set();
+let crmExpandId = null;
+
+// ─── UTIL ───
+function escapeHtml(str){
+  if(str == null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function saveCRMToStorage(){
+  try{
+    const payload = {
+      v: 1,
+      leads: allLeads,
+      contactedIds: [...contacted],
+      closedIds: [...closed],
+      scannedCatCount
+    };
+    localStorage.setItem(CRM_LS_KEY, JSON.stringify(payload));
+  }catch(e){
+    console.warn('CRM save failed', e);
+  }
+}
+
+function loadCRMFromStorage(silent){
+  try{
+    const raw = localStorage.getItem(CRM_LS_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(!data || !Array.isArray(data.leads)) return false;
+    allLeads = data.leads;
+    contacted = new Set(data.contactedIds || []);
+    closed = new Set(data.closedIds || []);
+    if(typeof data.scannedCatCount === 'number') scannedCatCount = data.scannedCatCount;
+    else scannedCatCount = new Set(allLeads.map(l => l.cat)).size;
+    return true;
+  }catch(e){
+    if(!silent) console.warn('CRM load failed', e);
+    return false;
+  }
+}
+
+function updateMainChromeVisibility(){
+  const bar = document.getElementById('main-mode-bar');
+  if(!bar) return;
+  bar.style.display = allLeads.length ? 'flex' : 'none';
+}
+
+function setMainMode(mode){
+  mainMode = mode === 'crm' ? 'crm' : 'prospector';
+  const tabP = document.getElementById('tab-prospector');
+  const tabC = document.getElementById('tab-crm');
+  const panelP = document.getElementById('prospector-panel');
+  const panelC = document.getElementById('crm-panel');
+  if(tabP) tabP.classList.toggle('active', mainMode === 'prospector');
+  if(tabC) tabC.classList.toggle('active', mainMode === 'crm');
+  if(panelP) panelP.style.display = mainMode === 'prospector' ? 'flex' : 'none';
+  if(panelC){
+    panelC.classList.toggle('open', mainMode === 'crm');
+    panelC.style.display = mainMode === 'crm' ? 'flex' : 'none';
+  }
+  if(mainMode === 'crm'){
+    repopulateCrmCategorySelect();
+    renderCRMTable();
+  }else{
+    applySortAndRender();
+  }
+}
+
+function repopulateCrmCategorySelect(){
+  const sel = document.getElementById('crm-filter-cat');
+  if(!sel) return;
+  const prevEnc = sel.value;
+  let prevCat = '';
+  try{ prevCat = prevEnc ? decodeURIComponent(prevEnc) : ''; }catch{ prevCat = ''; }
+  const cats = [...new Set(allLeads.map(l => l.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML = '';
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = 'All categories';
+  sel.appendChild(opt0);
+  cats.forEach(c => {
+    const o = document.createElement('option');
+    o.value = encodeURIComponent(c);
+    o.textContent = c;
+    sel.appendChild(o);
+  });
+  if(prevCat && cats.includes(prevCat)) sel.value = encodeURIComponent(prevCat);
+}
+
+function onCrmSearchInput(){
+  renderCRMTable();
+}
+
+function getLeadCrmStatus(id){
+  if(closed.has(id)) return 'closed';
+  if(contacted.has(id)) return 'contacted';
+  return 'new';
+}
+
+function getFilteredLeads(){
+  let filtered = [...allLeads];
+  if(currentFilter === 'hot') filtered = filtered.filter(l=>l.score>=50);
+  else if(currentFilter === 'nosite') filtered = filtered.filter(l=>!l.hasWebsite);
+  else if(currentFilter === 'lowrated') filtered = filtered.filter(l=>l.rating>0&&l.rating<4);
+  else if(currentFilter === 'notcontacted') filtered = filtered.filter(l=>!contacted.has(l.id)&&!closed.has(l.id));
+  else if(currentFilter === 'nosite_norating') filtered = filtered.filter(l=>!l.hasWebsite&&l.rating===0);
+  return filtered;
+}
+
+function getCRMFilteredLeads(){
+  const q = (document.getElementById('crm-search')?.value || '').trim().toLowerCase();
+  const rawCat = document.getElementById('crm-filter-cat')?.value || '';
+  let cat = '';
+  try{ cat = rawCat ? decodeURIComponent(rawCat) : ''; }catch{ cat = rawCat; }
+  const st = document.getElementById('crm-filter-status')?.value || 'all';
+  let rows = [...allLeads];
+  if(cat) rows = rows.filter(l => l.cat === cat);
+  if(st === 'new') rows = rows.filter(l => getLeadCrmStatus(l.id) === 'new');
+  else if(st === 'contacted') rows = rows.filter(l => getLeadCrmStatus(l.id) === 'contacted');
+  else if(st === 'closed') rows = rows.filter(l => getLeadCrmStatus(l.id) === 'closed');
+  if(q){
+    rows = rows.filter(l => {
+      const blob = [
+        l.name, l.address, l.cat, l.phone, l.enrichedPhone, l.enrichedEmail, l.website, l.note
+      ].filter(Boolean).join(' ').toLowerCase();
+      return blob.includes(q);
+    });
+  }
+  const sort = document.getElementById('sort-select')?.value || 'score';
+  if(sort === 'score') rows.sort((a,b)=>b.score-a.score);
+  else if(sort === 'reviews_asc') rows.sort((a,b)=>a.reviews-b.reviews);
+  else if(sort === 'rating_asc') rows.sort((a,b)=>a.rating-b.rating);
+  else if(sort === 'name') rows.sort((a,b)=>a.name.localeCompare(b.name));
+  return rows;
+}
+
+function displayPhone(lead){
+  return lead.phone || lead.enrichedPhone || '';
+}
+
+function openMapsById(id){
+  const l = allLeads.find(x => x.id === id);
+  if(l && l.mapsUrl) window.open(l.mapsUrl, '_blank');
+}
+
+function callLeadById(id){
+  const l = allLeads.find(x => x.id === id);
+  const p = displayPhone(l);
+  if(p) window.location.href = 'tel:' + p.replace(/\D/g,'');
+}
+
+function openWebsiteById(id){
+  const l = allLeads.find(x => x.id === id);
+  if(l && l.website) window.open(l.website, '_blank');
+}
+
+function copyToClipboard(text){
+  if(!text) return;
+  navigator.clipboard.writeText(text).catch(()=>{});
+}
+
+function copyCrmScript(id, type){
+  const lead = allLeads.find(l => l.id === id);
+  if(!lead) return;
+  copyToClipboard(generateMsg(lead, type));
+}
+
+function idForDomAttr(id){
+  return encodeURIComponent(String(id));
+}
+
+function refreshCRMIfActive(){
+  if(mainMode === 'crm') renderCRMTable();
+}
 
 // ─── CAT COUNT UPDATE ───
 function updateCatCount(){
@@ -978,8 +1228,17 @@ async function runSearch(){
   document.getElementById('sort-row').style.display = 'none';
   document.getElementById('export-bar').style.display = 'none';
   document.getElementById('search-btn').disabled = true;
-  allLeads = [];
-  scannedCatCount = 0;
+
+  const clearBefore = document.getElementById('crm-clear-before-scan')?.checked;
+  if(clearBefore){
+    allLeads = [];
+    contacted.clear();
+    closed.clear();
+    scannedCatCount = 0;
+  }else if(allLeads.length === 0){
+    loadCRMFromStorage(true);
+  }
+  const existingIds = new Set(allLeads.map(l => l.id));
 
   try{
     document.getElementById('loading-text').textContent = 'LOCATING TARGET AREA...';
@@ -1019,6 +1278,7 @@ async function runSearch(){
         places.forEach(place => {
           const lead = buildLead(place, cat, opts);
           if(!passesSearchOptions(lead, place, opts)) return;
+          if(existingIds.has(place.place_id)) return;
           if(allLeads.find(l => l.id === place.place_id)) return;
           if(opts.dedupeNameAddress){
             const key = buildBizKey(lead);
@@ -1026,8 +1286,8 @@ async function runSearch(){
             seenBizKeys.add(key);
           }
           allLeads.push(lead);
+          existingIds.add(place.place_id);
         });
-        scannedCatCount++;
       }catch(catErr){
         if(catErr.message.includes('Places API') || catErr.message.includes('key denied')){throw catErr;}
         console.warn('Category skipped:', cat, '—', catErr.message);
@@ -1045,7 +1305,10 @@ async function runSearch(){
     }
 
     allLeads.sort((a,b) => b.score - a.score);
-    renderLeads(allLeads);
+    scannedCatCount = new Set(allLeads.map(l => l.cat)).size;
+    saveCRMToStorage();
+    updateMainChromeVisibility();
+    applySortAndRender();
     updateStats();
     document.getElementById('loading-wrap').style.display = 'none';
     document.getElementById('stats-row').style.display = 'grid';
@@ -1053,6 +1316,8 @@ async function runSearch(){
     document.getElementById('sort-row').style.display = 'flex';
     document.getElementById('export-bar').style.display = 'flex';
     updateExportInfo();
+    document.getElementById('s-contacted').textContent = contacted.size;
+    document.getElementById('s-closed').textContent = closed.size;
 
     // Auto-enrich all leads with websites in background
     if(opts.enrichAfterScan) enrichAllLeads();
@@ -1129,31 +1394,34 @@ function renderLeads(leads){
 
     const scoreClass = lead.score >= 50 ? 'score-hot' : lead.score >= 25 ? 'score-warm' : 'score-cold';
     const scoreLabel = lead.score >= 50 ? '🔥 HOT' : lead.score >= 25 ? 'WARM' : 'COLD';
-    const phoneSafe = lead.phone.replace(/'/g,"&apos;");
+    const phoneDisp = displayPhone(lead);
+    const idEnc = idForDomAttr(lead.id);
 
     card.innerHTML = `
       <div class="lead-top">
-        <div class="lead-name">${lead.name}</div>
+        <div class="lead-name">${escapeHtml(lead.name)}</div>
         <div class="lead-score ${scoreClass}">${scoreLabel} · ${lead.score}</div>
       </div>
       <div class="lead-meta">
-        <span class="lead-cat-tag">${lead.cat.toUpperCase()}</span>
-        <span class="lead-address">${lead.address}</span>
+        <span class="lead-cat-tag">${escapeHtml(String(lead.cat).toUpperCase())}</span>
+        <span class="lead-address">${escapeHtml(lead.address)}</span>
       </div>
       <div class="lead-signals">
-        ${lead.signals.map(s=>`<span class="signal-tag sig-${s.type}">${s.label}</span>`).join('')}
+        ${lead.signals.map(s=>`<span class="signal-tag sig-${s.type}">${escapeHtml(s.label)}</span>`).join('')}
       </div>
       <div class="lead-actions">
-        <button class="action-btn" onclick="openMaps('${lead.mapsUrl}')">Maps</button>
-        ${lead.phone ? `<button class="action-btn" onclick="callLead('${phoneSafe}')">Call ${lead.phone}</button>` : ''}
-        ${lead.website ? `<button class="action-btn" onclick="window.open('${lead.website}','_blank')">Website</button>` : ''}
-        <button class="action-btn" onclick="openOutreach('${lead.id}')">Outreach</button>
-        <button class="action-btn mark-contacted" onclick="markContacted('${lead.id}')">Contacted</button>
-        <button class="action-btn mark-closed" onclick="markClosed('${lead.id}')">Closed ✓</button>
-        <button class="action-btn" onclick="toggleNote('${lead.id}')">Note</button>
+        <button class="action-btn" type="button" onclick="openMapsById(decodeURIComponent('${idEnc}'))">Maps</button>
+        ${phoneDisp ? `<button class="action-btn" type="button" onclick="callLeadById(decodeURIComponent('${idEnc}'))">Call ${escapeHtml(phoneDisp)}</button>` : ''}
+        ${lead.website ? `<button class="action-btn" type="button" onclick="openWebsiteById(decodeURIComponent('${idEnc}'))">Website</button>` : ''}
+        <button class="action-btn" type="button" onclick="openOutreach(decodeURIComponent('${idEnc}'))">Outreach</button>
+        <button class="action-btn mark-contacted" type="button" onclick="markContacted(decodeURIComponent('${idEnc}'))">Contacted</button>
+        <button class="action-btn" type="button" onclick="markUncontacted(decodeURIComponent('${idEnc}'))">Undo</button>
+        <button class="action-btn mark-closed" type="button" onclick="markClosed(decodeURIComponent('${idEnc}'))">Closed ✓</button>
+        <button class="action-btn crm-danger" type="button" onclick="deleteLead(decodeURIComponent('${idEnc}'))">Delete</button>
+        <button class="action-btn" type="button" onclick="toggleNote(decodeURIComponent('${idEnc}'))">Note</button>
       </div>
       <div class="lead-note" id="note-${lead.id}">
-        <textarea placeholder="Add a note..." onchange="saveNote('${lead.id}',this.value)">${lead.note||''}</textarea>
+        <textarea placeholder="Add a note..." onchange="saveNote(decodeURIComponent('${idEnc}'),this.value)">${escapeHtml(lead.note||'')}</textarea>
       </div>
     `;
     container.appendChild(card);
@@ -1163,7 +1431,7 @@ function renderLeads(leads){
 // ─── SORT ───
 function applySortAndRender(){
   const sort = document.getElementById('sort-select').value;
-  let sorted = [...allLeads];
+  let sorted = getFilteredLeads();
   if(sort === 'score') sorted.sort((a,b)=>b.score-a.score);
   else if(sort === 'reviews_asc') sorted.sort((a,b)=>a.reviews-b.reviews);
   else if(sort === 'rating_asc') sorted.sort((a,b)=>a.rating-b.rating);
@@ -1175,14 +1443,8 @@ function applySortAndRender(){
 function filterLeads(filter, btn){
   currentFilter = filter;
   document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active');
-  let filtered = allLeads;
-  if(filter === 'hot') filtered = allLeads.filter(l=>l.score>=50);
-  else if(filter === 'nosite') filtered = allLeads.filter(l=>!l.hasWebsite);
-  else if(filter === 'lowrated') filtered = allLeads.filter(l=>l.rating>0&&l.rating<4);
-  else if(filter === 'notcontacted') filtered = allLeads.filter(l=>!contacted.has(l.id)&&!closed.has(l.id));
-  else if(filter === 'nosite_norating') filtered = allLeads.filter(l=>!l.hasWebsite&&l.rating===0);
-  renderLeads(filtered);
+  if(btn) btn.classList.add('active');
+  applySortAndRender();
 }
 
 // ─── STATS ───
@@ -1213,6 +1475,19 @@ function markContacted(id){
   if(card) card.classList.add('contacted');
   document.getElementById('s-contacted').textContent = contacted.size;
   updateExportInfo();
+  saveCRMToStorage();
+  refreshCRMIfActive();
+}
+
+function markUncontacted(id){
+  if(closed.has(id)) return;
+  contacted.delete(id);
+  const card = document.getElementById('card-'+id);
+  if(card) card.classList.remove('contacted');
+  document.getElementById('s-contacted').textContent = contacted.size;
+  updateExportInfo();
+  saveCRMToStorage();
+  refreshCRMIfActive();
 }
 
 function markClosed(id){
@@ -1223,6 +1498,38 @@ function markClosed(id){
   document.getElementById('s-closed').textContent = closed.size;
   document.getElementById('s-contacted').textContent = contacted.size;
   updateExportInfo();
+  saveCRMToStorage();
+  refreshCRMIfActive();
+}
+
+function deleteLead(id){
+  if(!confirm('Remove this lead from CRM?')) return;
+  allLeads = allLeads.filter(l => l.id !== id);
+  contacted.delete(id);
+  closed.delete(id);
+  crmSelected.delete(id);
+  if(crmExpandId === id) crmExpandId = null;
+  const card = document.getElementById('card-'+id);
+  if(card) card.remove();
+  saveCRMToStorage();
+  updateStats();
+  updateExportInfo();
+  updateMainChromeVisibility();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  document.getElementById('s-closed').textContent = closed.size;
+  if(allLeads.length === 0){
+    document.getElementById('leads-container').innerHTML = '';
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('stats-row').style.display = 'none';
+    document.getElementById('filter-row').style.display = 'none';
+    document.getElementById('sort-row').style.display = 'none';
+    document.getElementById('export-bar').style.display = 'none';
+    const wrap = document.getElementById('crm-table-wrap');
+    if(wrap) wrap.innerHTML = '';
+  }else{
+    applySortAndRender();
+    refreshCRMIfActive();
+  }
 }
 
 function toggleNote(id){
@@ -1233,6 +1540,7 @@ function toggleNote(id){
 function saveNote(id, val){
   const lead = allLeads.find(l=>l.id===id);
   if(lead) lead.note = val;
+  saveCRMToStorage();
 }
 
 // ─── OUTREACH MODAL ───
@@ -1340,6 +1648,8 @@ async function enrichAllLeads(){
   }
 
   updateExportInfo();
+  saveCRMToStorage();
+  refreshCRMIfActive();
 }
 
 function updateLeadCard(lead){
@@ -1389,6 +1699,7 @@ function updateLeadCard(lead){
       signals.appendChild(tag);
     }
   }
+  refreshCRMIfActive();
 }
 
 // ─── EXPORT CSV (all) ───
@@ -1431,14 +1742,171 @@ function downloadCSV(data, filename){
 function clearAll(){
   if(!confirm('Clear all leads? Cannot be undone.')) return;
   allLeads = []; contacted.clear(); closed.clear();
+  crmSelected.clear();
+  crmExpandId = null;
   document.getElementById('leads-container').innerHTML = '';
   document.getElementById('empty-state').style.display = 'flex';
   document.getElementById('stats-row').style.display = 'none';
   document.getElementById('filter-row').style.display = 'none';
   document.getElementById('sort-row').style.display = 'none';
   document.getElementById('export-bar').style.display = 'none';
+  updateMainChromeVisibility();
+  const wrap = document.getElementById('crm-table-wrap');
+  if(wrap) wrap.innerHTML = '';
   updateStats();
+  saveCRMToStorage();
 }
+
+function crmToggleSelect(id, checked){
+  if(checked) crmSelected.add(id);
+  else crmSelected.delete(id);
+}
+
+function crmToggleSelectAll(master){
+  const rows = getCRMFilteredLeads();
+  if(master.checked) rows.forEach(r => crmSelected.add(r.id));
+  else rows.forEach(r => crmSelected.delete(r.id));
+  renderCRMTable();
+}
+
+function crmBulkMarkContacted(){
+  if(crmSelected.size === 0){ alert('Select at least one row.'); return; }
+  crmSelected.forEach(id => { if(!closed.has(id)) contacted.add(id); });
+  saveCRMToStorage();
+  crmSelected.clear();
+  applySortAndRender();
+  renderCRMTable();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  updateExportInfo();
+}
+
+function crmBulkMarkNew(){
+  if(crmSelected.size === 0){ alert('Select at least one row.'); return; }
+  crmSelected.forEach(id => {
+    if(!closed.has(id)){
+      contacted.delete(id);
+    }
+  });
+  saveCRMToStorage();
+  crmSelected.clear();
+  applySortAndRender();
+  renderCRMTable();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  updateExportInfo();
+}
+
+function crmBulkDelete(){
+  if(crmSelected.size === 0){ alert('Select at least one row.'); return; }
+  if(!confirm(`Delete ${crmSelected.size} leads from CRM?`)) return;
+  const kill = new Set(crmSelected);
+  allLeads = allLeads.filter(l => !kill.has(l.id));
+  kill.forEach(id => { contacted.delete(id); closed.delete(id); });
+  crmSelected.clear();
+  crmExpandId = null;
+  scannedCatCount = new Set(allLeads.map(l => l.cat)).size;
+  saveCRMToStorage();
+  updateStats();
+  updateExportInfo();
+  updateMainChromeVisibility();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  document.getElementById('s-closed').textContent = closed.size;
+  if(allLeads.length === 0){
+    document.getElementById('leads-container').innerHTML = '';
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('stats-row').style.display = 'none';
+    document.getElementById('filter-row').style.display = 'none';
+    document.getElementById('sort-row').style.display = 'none';
+    document.getElementById('export-bar').style.display = 'none';
+  }else{
+    applySortAndRender();
+  }
+  renderCRMTable();
+}
+
+function toggleCrmPreview(id){
+  crmExpandId = crmExpandId === id ? null : id;
+  renderCRMTable();
+}
+
+function renderCRMTable(){
+  const wrap = document.getElementById('crm-table-wrap');
+  if(!wrap) return;
+  const rows = getCRMFilteredLeads();
+  if(rows.length === 0){
+    wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">No leads match CRM filters.</div>';
+    return;
+  }
+
+  const allSelected = rows.every(r => crmSelected.has(r.id));
+  let html = '<table class="crm-table"><thead><tr>';
+  html += `<th style="width:36px;"><input type="checkbox" id="crm-select-all" ${allSelected ? 'checked' : ''} onclick="crmToggleSelectAll(this)" aria-label="Select all"/></th>`;
+  html += '<th>Business</th><th>Cat</th><th>Score</th><th>Status</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead><tbody>';
+
+  rows.forEach(lead => {
+    const st = getLeadCrmStatus(lead.id);
+    const stClass = st === 'closed' ? 'crm-st-closed' : st === 'contacted' ? 'crm-st-contacted' : 'crm-st-new';
+    const stLabel = st === 'closed' ? 'Closed' : st === 'contacted' ? 'Contacted' : 'New';
+    const phone = displayPhone(lead) || '—';
+    const email = lead.enrichedEmail || '—';
+    const idEnc = idForDomAttr(lead.id);
+    const checked = crmSelected.has(lead.id) ? 'checked' : '';
+    const exp = crmExpandId === lead.id;
+
+    html += `<tr>
+      <td><input type="checkbox" ${checked} onchange="crmToggleSelect(decodeURIComponent('${idEnc}'), this.checked)"/></td>
+      <td><strong>${escapeHtml(lead.name)}</strong><div style="font-size:10px;color:var(--muted);margin-top:4px;">${escapeHtml(lead.address)}</div></td>
+      <td>${escapeHtml(lead.cat)}</td>
+      <td>${lead.score}</td>
+      <td><span class="crm-status ${stClass}">${stLabel}</span></td>
+      <td>${escapeHtml(phone)}</td>
+      <td style="max-width:160px;word-break:break-all;">${escapeHtml(email)}</td>
+      <td><div class="crm-mini-actions">
+        <button type="button" onclick="openOutreach(decodeURIComponent('${idEnc}'))">Outreach</button>
+        <button type="button" onclick="openMapsById(decodeURIComponent('${idEnc}'))">Maps</button>
+        ${lead.website ? `<button type="button" onclick="openWebsiteById(decodeURIComponent('${idEnc}'))">Site</button>` : ''}
+        <button type="button" onclick="toggleCrmPreview(decodeURIComponent('${idEnc}'))">${exp ? 'Hide' : 'Scripts'}</button>
+        <button type="button" onclick="markContacted(decodeURIComponent('${idEnc}'))">Contacted</button>
+        <button type="button" onclick="markUncontacted(decodeURIComponent('${idEnc}'))">New</button>
+        <button type="button" onclick="markClosed(decodeURIComponent('${idEnc}'))">Closed</button>
+        <button type="button" class="crm-danger" onclick="deleteLead(decodeURIComponent('${idEnc}'))">Del</button>
+      </div></td>
+    </tr>`;
+
+    if(exp){
+      const t = escapeHtml(generateMsg(lead, 'text'));
+      const e = escapeHtml(generateMsg(lead, 'email'));
+      const v = escapeHtml(generateMsg(lead, 'voicemail'));
+      html += `<tr class="crm-detail-row"><td colspan="8">
+        <div class="crm-preview-block"><div class="p-label">TEXT / DM</div><pre>${t}</pre><button type="button" onclick="copyCrmScript(decodeURIComponent('${idEnc}'),'text')">Copy</button></div>
+        <div class="crm-preview-block"><div class="p-label">EMAIL</div><pre>${e}</pre><button type="button" onclick="copyCrmScript(decodeURIComponent('${idEnc}'),'email')">Copy</button></div>
+        <div class="crm-preview-block"><div class="p-label">VOICEMAIL</div><pre>${v}</pre><button type="button" onclick="copyCrmScript(decodeURIComponent('${idEnc}'),'voicemail')">Copy</button></div>
+      </td></tr>`;
+    }
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+function initApp(){
+  if(!loadCRMFromStorage(true) || allLeads.length === 0) return;
+  document.getElementById('empty-state').style.display = 'none';
+  updateMainChromeVisibility();
+  document.getElementById('stats-row').style.display = 'grid';
+  document.getElementById('filter-row').style.display = 'flex';
+  document.getElementById('sort-row').style.display = 'flex';
+  document.getElementById('export-bar').style.display = 'flex';
+  currentFilter = 'all';
+  document.querySelectorAll('#filter-row .filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('#filter-row .filter-chip')?.classList.add('active');
+  setMainMode('prospector');
+  updateStats();
+  updateExportInfo();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  document.getElementById('s-closed').textContent = closed.size;
+}
+
+initApp();
 </script>
 </body>
 </html>
