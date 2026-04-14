@@ -161,27 +161,33 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .loader-progress{font-family:var(--mono);font-size:10px;color:var(--amber);}
 
 /* LEAD CARDS */
-.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.1rem 1.3rem;margin-bottom:9px;transition:border-color 0.2s,transform 0.15s;position:relative;}
-.lead-card:hover{border-color:var(--border-hot);transform:translateX(2px);}
+.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1.4rem;margin-bottom:12px;position:relative;transition:all 0.15s;display:flex;flex-direction:column;gap:1rem;}
+.lead-card:hover{border-color:var(--border-hot);background:var(--surface2);}
 .lead-card.priority-high{border-left:3px solid var(--red);}
 .lead-card.priority-med{border-left:3px solid var(--amber);}
 .lead-card.priority-low{border-left:3px solid var(--border-hot);}
 .lead-card.contacted{opacity:0.45;}
 .lead-card.closed{border-color:var(--green);background:var(--green-dim);}
-.lead-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;gap:0.5rem;}
-.lead-name{font-size:14px;font-weight:700;color:var(--white);line-height:1.3;}
-.lead-score{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:2px;flex-shrink:0;}
-.score-hot{background:rgba(255,59,48,0.15);color:var(--red);border:1px solid rgba(255,59,48,0.25);}
-.score-warm{background:rgba(255,184,0,0.12);color:var(--amber);border:1px solid rgba(255,184,0,0.2);}
-.score-cold{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border);}
-.lead-meta{display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;flex-wrap:wrap;}
-.lead-cat-tag{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;background:var(--surface2);border:1px solid var(--border);padding:2px 7px;border-radius:2px;}
-.lead-address{font-size:11px;color:var(--muted);}
-.lead-signals{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:0.85rem;}
-.signal-tag{font-size:10px;padding:2px 7px;border-radius:2px;font-family:var(--mono);}
-.sig-bad{background:rgba(255,59,48,0.1);color:var(--red);border:1px solid rgba(255,59,48,0.15);}
-.sig-warn{background:rgba(255,184,0,0.1);color:var(--amber);border:1px solid rgba(255,184,0,0.15);}
-.sig-ok{background:rgba(0,255,136,0.08);color:var(--green);border:1px solid rgba(0,255,136,0.12);}
+.lead-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;}
+.lead-name-group{flex:1;}
+.lead-name{font-size:1.25rem;font-weight:700;line-height:1.2;margin-bottom:6px;color:var(--white);}
+.lead-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lead-cat-tag{font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--surface3);padding:2px 8px;border-radius:2px;letter-spacing:0.06em;border:1px solid var(--border);text-transform:uppercase;}
+.lead-address{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;}
+
+.lead-score-hero{text-align:center;min-width:75px;padding:10px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid transparent;}
+.lsh-val{font-family:var(--mono);font-size:2rem;font-weight:700;line-height:1;}
+.lsh-lbl{font-size:9px;font-weight:700;letter-spacing:0.12em;margin-top:4px;opacity:0.85;}
+
+.score-hot{background:rgba(255,59,48,0.12);color:var(--red);border-color:rgba(255,59,48,0.25);}
+.score-warm{background:rgba(255,184,0,0.1);color:var(--amber);border-color:rgba(255,184,0,0.2);}
+.score-cold{background:rgba(255,255,255,0.03);color:var(--muted);border-color:var(--border);}
+
+.lead-signals{display:flex;gap:6px;flex-wrap:wrap;}
+.signal-tag{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:100px;letter-spacing:0.02em;border:1px solid transparent;}
+.sig-bad{background:rgba(255,59,48,0.1);color:var(--red);border-color:rgba(255,59,48,0.25);}
+.sig-warn{background:rgba(255,184,0,0.08);color:var(--amber);border-color:rgba(255,184,0,0.2);}
+.sig-ok{background:rgba(0,255,136,0.08);color:var(--green);border-color:rgba(0,255,136,0.2);}
 .lead-actions{display:flex;gap:5px;flex-wrap:wrap;}
 .action-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.05em;text-transform:uppercase;min-height:36px;padding:6px 10px;border-radius:2px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all 0.15s;}
 .action-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-dim);}
@@ -262,6 +268,7 @@ summary:focus-visible,
   .main{height:80vh;}
 }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -767,10 +774,10 @@ summary:focus-visible,
     </div>
     <div id="prospector-panel" class="prospector-panel">
     <div class="stats-row" id="stats-row" style="display:none;">
-      <div class="stat-box"><div class="stat-num green" id="st-found">0</div><div class="stat-lbl">Total Found</div></div>
-      <div class="stat-box"><div class="stat-num red" id="st-nosite">0</div><div class="stat-lbl">No Website</div></div>
-      <div class="stat-box"><div class="stat-num amber" id="st-lowrated">0</div><div class="stat-lbl">Low Rated</div></div>
-      <div class="stat-box"><div class="stat-num blue" id="st-cats">0</div><div class="stat-lbl">Categories</div></div>
+      <div class="stat-box"><div class="stat-lbl">TOTAL FOUND</div><div class="stat-num green" id="st-found">0</div></div>
+      <div class="stat-box" style="border-color:var(--red);"><div class="stat-lbl">🔥 HOT LEADS</div><div class="stat-num red" id="st-hot-stats">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">NO WEBSITE</div><div class="stat-num amber" id="st-nosite">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">CATEGORIES</div><div class="stat-num blue" id="st-cats">0</div></div>
     </div>
 
     <div class="filter-row" id="filter-row" style="display:none;">
@@ -823,7 +830,35 @@ summary:focus-visible,
       <div style="display:flex;gap:8px;">
         <button class="export-btn primary" onclick="exportCSV()">↓ Export CSV</button>
         <button class="export-btn" onclick="exportHotCSV()">↓ Hot Only CSV</button>
+        <button class="export-btn" onclick="openWebhookModal()" style="border-color:var(--purple);color:var(--purple);">Webhook / Zapier</button>
         <button class="export-btn" onclick="clearAll()">✕ Clear All</button>
+      </div>
+    </div>
+
+    <!-- WEBHOOK MODAL -->
+    <div id="webhook-modal" class="modal-overlay" onclick="closeWebhookModal(event)">
+      <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+          <div class="modal-title">Push to Webhook (Zapier/Make/GHL)</div>
+          <button class="close-btn" onclick="closeWebhookModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="field">
+            <label>Webhook URL</label>
+            <input type="text" id="webhook-url" placeholder="https://hooks.zapier.com/..." />
+            <small>Leads will be sent to this URL when you click "Push".</small>
+          </div>
+          <div class="field">
+            <label>Target Segment</label>
+            <select id="webhook-segment">
+              <option value="all">Push ALL Leads</option>
+              <option value="hot">Push HOT Only</option>
+              <option value="new">Push UNCONTACTED Only</option>
+            </select>
+          </div>
+          <button id="webhook-push-btn" class="search-btn" style="background:var(--purple);color:white;" onclick="pushToWebhook()">🚀 PUSH TO WEBHOOK</button>
+          <div id="webhook-status" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;"></div>
+        </div>
       </div>
     </div>
     </div>
@@ -883,6 +918,7 @@ summary:focus-visible,
       <div class="modal-actions">
         <button class="copy-btn" onclick="copyMsg()">Copy Message</button>
         <button class="dismiss-btn" id="ai-gen-btn" onclick="generateAIOutreach()" style="border-color:rgba(167,139,250,0.4);color:#a78bfa;">⚡ AI Personalize</button>
+        <button class="dismiss-btn" onclick="generateOpportunityReport()" style="border-color:rgba(255,184,0,0.4);color:var(--amber);">📄 Download Audit PDF</button>
         <button class="dismiss-btn" onclick="closeModal()">Close</button>
       </div>
     </div>
@@ -902,6 +938,7 @@ let activeCats = new Set();
 let scannedCatCount = 0;
 let mainMode = 'prospector';
 let crmSelected = new Set();
+const searchCache = new Map();
 let crmExpandId = null;
 
 // ─── UTIL ───
@@ -1287,6 +1324,12 @@ function passesSearchOptions(lead, place, opts){
 
 // ─── PAGINATED NEARBY SEARCH — calls our Vercel backend (no client-side API key) ───
 async function fetchCategoryLeads(cat, lat, lng, radius, maxResults){
+  const cacheKey = `${cat}|${lat}|${lng}|${radius}`;
+  if(searchCache.has(cacheKey)){
+    console.log(`[Cache] Found results for ${cat}`);
+    return searchCache.get(cacheKey);
+  }
+
   let results = [];
   let pageToken = null;
   let page = 0;
@@ -1314,7 +1357,9 @@ async function fetchCategoryLeads(cat, lat, lng, radius, maxResults){
 
   } while(pageToken && page < maxPages && results.length < maxResults);
 
-  return results.slice(0, maxResults);
+  const finalResults = results.slice(0, maxResults);
+  searchCache.set(cacheKey, finalResults);
+  return finalResults;
 }
 
 // ─── MAIN SEARCH ───
@@ -1391,13 +1436,20 @@ async function runSearch(){
       document.getElementById('loading-sub').textContent = `${allLeads.length} leads found so far...`;
 
       try{
-        const places = await fetchCategoryLeads(cat, lat, lng, radius, resultsCount);
-        let placesForCat = places;
-        if(!opts.skipPlaceDetails && places.length){
-          document.getElementById('loading-text').textContent = 'LOADING LISTING DETAILS...';
-          placesForCat = await enrichPlacesBatch(places, (done, total) => {
-            document.getElementById('loading-sub').textContent = `Place Details ${done}/${total} · ${cat}`;
-          });
+        const cached = searchCache.get(`${cat}|${lat}|${lng}|${radius}`);
+        let placesForCat = cached || await fetchCategoryLeads(cat, lat, lng, radius, resultsCount);
+        
+        if(!opts.skipPlaceDetails && placesForCat.length){
+          // Avoid re-enriching if we already have detailed data
+          const needsDetails = placesForCat.filter(p => !p.website && !p.formatted_phone_number);
+          if(needsDetails.length > 0){
+            document.getElementById('loading-text').textContent = 'LOADING LISTING DETAILS...';
+            placesForCat = await enrichPlacesBatch(placesForCat, (done, total) => {
+              document.getElementById('loading-sub').textContent = `Place Details ${done}/${total} · ${cat}`;
+            });
+            // Update cache with detailed places
+            searchCache.set(`${cat}|${lat}|${lng}|${radius}`, placesForCat);
+          }
         }
         placesForCat.forEach(place => {
           const lead = buildLead(place, cat, opts);
@@ -1536,12 +1588,17 @@ function renderLeads(leads){
 
     card.innerHTML = `
       <div class="lead-top">
-        <div class="lead-name">${escapeHtml(lead.name)}</div>
-        <div class="lead-score ${scoreClass}">${scoreLabel} · ${lead.score}</div>
-      </div>
-      <div class="lead-meta">
-        <span class="lead-cat-tag">${escapeHtml(String(lead.cat).toUpperCase())}</span>
-        <span class="lead-address">${escapeHtml(lead.address)}</span>
+        <div class="lead-name-group">
+          <div class="lead-name">${escapeHtml(lead.name)}</div>
+          <div class="lead-meta">
+            <span class="lead-cat-tag">${escapeHtml(String(lead.cat).toUpperCase())}</span>
+            <span class="lead-address">${escapeHtml(lead.address)}</span>
+          </div>
+        </div>
+        <div class="lead-score-hero ${scoreClass}">
+          <div class="lsh-val">${lead.score}</div>
+          <div class="lsh-lbl">${scoreLabel}</div>
+        </div>
       </div>
       <div class="lead-signals">
         ${lead.signals.map(s=>`<span class="signal-tag sig-${s.type}">${escapeHtml(s.label)}</span>`).join('')}
@@ -1592,7 +1649,7 @@ function updateStats(){
   const lowrated = allLeads.filter(l=>l.rating>0&&l.rating<4).length;
   document.getElementById('st-found').textContent = allLeads.length;
   document.getElementById('st-nosite').textContent = nosite;
-  document.getElementById('st-lowrated').textContent = lowrated;
+  document.getElementById('st-hot-stats').textContent = hot;
   document.getElementById('st-cats').textContent = scannedCatCount;
   document.getElementById('s-total').textContent = allLeads.length;
   document.getElementById('s-hot').textContent = hot;
@@ -1604,6 +1661,68 @@ function updateExportInfo(){
 }
 
 // ─── ACTIONS ───
+function openWebhookModal(){
+  const savedUrl = localStorage.getItem('coai_webhook_url') || '';
+  document.getElementById('webhook-url').value = savedUrl;
+  document.getElementById('webhook-modal').classList.add('open');
+  document.getElementById('webhook-status').textContent = '';
+}
+
+function closeWebhookModal(e){
+  if(!e || e.target === document.getElementById('webhook-modal') || e.target.classList.contains('close-btn')){
+    document.getElementById('webhook-modal').classList.remove('open');
+  }
+}
+
+async function pushToWebhook(){
+  const url = document.getElementById('webhook-url').value.trim();
+  if(!url){alert('Please enter a Webhook URL.');return;}
+  localStorage.setItem('coai_webhook_url', url);
+  
+  const segment = document.getElementById('webhook-segment').value;
+  let targetLeads = allLeads;
+  if(segment === 'hot') targetLeads = allLeads.filter(l => l.score >= 50);
+  if(segment === 'new') targetLeads = allLeads.filter(l => !contacted.has(l.id));
+
+  if(targetLeads.length === 0){
+    alert('No leads found for the selected segment.');
+    return;
+  }
+
+  const btn = document.getElementById('webhook-push-btn');
+  const status = document.getElementById('webhook-status');
+  btn.disabled = true;
+  btn.textContent = '🚀 PUSHING...';
+  status.textContent = `Sending ${targetLeads.length} leads to your CRM...`;
+
+  try {
+    // We send them in one big POST. Zapier/Make "Catch Webhook" usually handles this as a single trigger if configured for it, 
+    // or we could loop. Typically, single POST with array is better for bulk.
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors', // Many webhooks don't have CORS, no-cors lets us fire and forget
+      body: JSON.stringify({
+        source: 'COAI Lead Engine v2',
+        timestamp: new Date().toISOString(),
+        leads: targetLeads
+      })
+    });
+    
+    // With no-cors we can't see the response but it usually succeeds
+    status.textContent = `✓ ${targetLeads.length} leads sent successfully!`;
+    btn.textContent = '✓ SENT';
+    setTimeout(() => {
+      btn.textContent = '🚀 PUSH TO WEBHOOK';
+      btn.disabled = false;
+    }, 3000);
+  } catch (err) {
+    status.textContent = '✖ Error: ' + err.message;
+    btn.disabled = false;
+    btn.textContent = '🚀 RETRY PUSH';
+  }
+}
+
 function openMaps(url){window.open(url,'_blank');}
 function callLead(phone){window.location.href='tel:'+phone.replace(/\D/g,'');}
 
@@ -1747,6 +1866,105 @@ function closeModal(e){
 }
 
 // ─── AI OUTREACH GENERATOR ───
+function generateOpportunityReport(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const lead = activeLead;
+  if(!lead) return;
+
+  const primaryColor = [10, 10, 10];
+  const accentColor = [0, 255, 136]; // Green
+  const warnColor = [255, 184, 0];   // Amber
+  const dangerColor = [255, 59, 48];  // Red
+
+  // Header
+  doc.setFillColor(...primaryColor);
+  doc.rect(0, 0, 210, 40, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("BUSINESS OPPORTUNITY REPORT", 15, 25);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Prepared for: ${lead.name}`, 15, 32);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 32);
+
+  // Business Info
+  doc.setTextColor(...primaryColor);
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Business Overview", 15, 55);
+  doc.setDrawColor(200, 200, 200);
+  doc.line(15, 58, 195, 58);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Category: ${lead.cat.toUpperCase()}`, 15, 68);
+  doc.text(`Address: ${lead.address}`, 15, 75);
+  doc.text(`Google Rating: ${lead.rating ? lead.rating + ' stars' : 'None'}`, 15, 82);
+  doc.text(`Total Reviews: ${lead.reviews}`, 15, 89);
+  doc.text(`Website: ${lead.hasWebsite ? lead.website : 'NOT FOUND'}`, 15, 96);
+
+  // Opportunity Score Hero
+  doc.setFillColor(245, 245, 245);
+  doc.roundedRect(140, 60, 55, 40, 3, 3, 'F');
+  doc.setTextColor(...primaryColor);
+  doc.setFontSize(10);
+  doc.text("OPPORTUNITY SCORE", 145, 70);
+  doc.setFontSize(32);
+  doc.setFont("helvetica", "bold");
+  const scoreColor = lead.score >= 50 ? dangerColor : lead.score >= 25 ? warnColor : primaryColor;
+  doc.setTextColor(...scoreColor);
+  doc.text(`${lead.score}`, 145, 88);
+
+  // Vulnerability Analysis
+  doc.setTextColor(...primaryColor);
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Vulnerability Analysis & Pain Points", 15, 115);
+  doc.line(15, 118, 195, 118);
+
+  let y = 130;
+  lead.signals.forEach(sig => {
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    if(sig.type === 'bad') doc.setTextColor(...dangerColor);
+    else if(sig.type === 'warn') doc.setTextColor(...warnColor);
+    else doc.setTextColor(...accentColor);
+    
+    doc.text(`[!] ${sig.label}`, 15, y);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(80, 80, 80);
+    
+    let advice = "";
+    if(sig.label === 'No Website') advice = "Your business is invisible to customers searching on mobile. A professional landing page could increase leads by 40%.";
+    else if(sig.label === '0 Reviews') advice = "Zero social proof makes potential customers trust your competitors more. An automated review system is required.";
+    else if(sig.label === 'No Phone') advice = "Customers cannot contact you directly from Google. This is a critical friction point.";
+    else if(sig.type === 'bad' && sig.label.includes('★')) advice = "Your current rating is below the local average. Negative sentiment is actively driving away revenue.";
+    else advice = "This area of your digital presence is underperforming compared to top competitors in your area.";
+
+    const splitAdvice = doc.splitTextToSize(advice, 170);
+    doc.text(splitAdvice, 15, y + 6);
+    y += 22;
+  });
+
+  // Solutions
+  doc.setFillColor(...accentColor);
+  doc.rect(15, 240, 180, 40, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Recommended Action Plan", 25, 252);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("1. Immediate deployment of an AI-powered Lead Capture Page.", 25, 260);
+  doc.text("2. Integration of Google Business Profile optimization & Review Growth.", 25, 266);
+  doc.text("3. Setup of 24/7 AI Receptionist to handle missed calls.", 25, 272);
+
+  doc.save(`COAI-Audit-${lead.name.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+}
+
 async function generateAIOutreach(){
   if(!activeLead) return;
   const btn = document.getElementById('ai-gen-btn');
@@ -1786,6 +2004,29 @@ async function generateAIOutreach(){
 }
 
 // ─── CRM BACKUP / RESTORE ───
+function clearAll(){
+  if(!confirm('ERASE ALL LEADS? This cannot be undone.')) return;
+  allLeads = [];
+  contacted = new Set();
+  closed = new Set();
+  activeCats = new Set();
+  scannedCatCount = 0;
+  searchCache.clear();
+  saveCRMToStorage();
+  updateMainChromeVisibility();
+  document.getElementById('empty-state').style.display = 'flex';
+  document.getElementById('stats-row').style.display = 'none';
+  document.getElementById('filter-row').style.display = 'none';
+  document.getElementById('sort-row').style.display = 'none';
+  document.getElementById('export-bar').style.display = 'none';
+  const container = document.getElementById('leads-container');
+  if(container) container.innerHTML = '';
+  document.getElementById('st-found').textContent = '0';
+  document.getElementById('st-hot-stats').textContent = '0';
+  document.getElementById('st-nosite').textContent = '0';
+  document.getElementById('st-cats').textContent = '0';
+}
+
 function exportCRMBackup(){
   const payload = {
     v: 1,
