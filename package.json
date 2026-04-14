@@ -6,6 +6,7 @@
   "type": "commonjs",
   "dependencies": {
     "@sparticuz/chromium": "^123.0.1",
+    "@vercel/analytics": "^2.0.1",
     "libphonenumber-js": "^1.12.41",
     "puppeteer-core": "^24.6.0"
   }
