@@ -6,9 +6,10 @@
 //   APP_PASSWORD           — your access token (e.g. COAI-GOD-MODE-2026)
 //
 // Modes via ?mode= param:
-//   geocode  — city string → lat/lng
-//   ping     — auth check only, no Google call
-//   default  — NearbySearch with keyword + pagination
+//   geocode      — city string → lat/lng
+//   ping         — auth check only, no Google call
+//   placedetails — single place_id → full Place Details (phone, website, hours, etc.)
+//   default      — NearbySearch with keyword + pagination
 
 module.exports = async function handler(req, res) {
   // CORS
@@ -17,15 +18,17 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // AUTH CHECK
-  const MASTER_PASSWORD = process.env.APP_PASSWORD || 'COAI-GOD-MODE-2026';
+  // AUTH CHECK — no hardcoded fallback; misconfigured env = explicit 500
+  const MASTER_PASSWORD = process.env.APP_PASSWORD;
+  if (!MASTER_PASSWORD) {
+    return res.status(500).json({ error: 'Server misconfiguration: APP_PASSWORD not set in environment.' });
+  }
   const userAuth = req.headers['authorization'];
-
   if (userAuth !== MASTER_PASSWORD) {
     return res.status(401).json({ error: 'Unauthorized: Invalid Access Key.' });
   }
 
-  const { mode, location, lat, lng, radius = '8000', type, pagetoken } = req.query;
+  const { mode, location, lat, lng, radius = '8000', type, pagetoken, place_id } = req.query;
 
   // PING — auth check only
   if (mode === 'ping') {
@@ -42,6 +45,19 @@ module.exports = async function handler(req, res) {
     if (mode === 'geocode') {
       if (!location) return res.status(400).json({ error: 'location param required.' });
       const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`;
+      const data = await (await fetch(url)).json();
+      return res.status(200).json(data);
+    }
+
+    // PLACE DETAILS MODE — returns full phone/website/hours for a single place_id
+    if (mode === 'placedetails') {
+      if (!place_id) return res.status(400).json({ error: 'place_id param required.' });
+      const fields = [
+        'formatted_phone_number', 'international_phone_number', 'website',
+        'formatted_address', 'opening_hours', 'business_status',
+        'rating', 'user_ratings_total', 'url'
+      ].join(',');
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=${encodeURIComponent(fields)}&key=${apiKey}`;
       const data = await (await fetch(url)).json();
       return res.status(200).json(data);
     }

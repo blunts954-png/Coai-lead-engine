@@ -725,13 +725,11 @@ summary:focus-visible,
     </details>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">API Key Required</div>
+      <div class="sidebar-label">Access</div>
       <div class="field">
-        <label>Google Places API Key</label>
-        <input type="password" id="api-key" placeholder="AIza..."/>
-      </div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.6;margin-top:4px;">
-        Google Cloud → enable <strong style="color:var(--white);">Places API</strong> + <strong style="color:var(--white);">Geocoding API</strong>. Nearby Search omits most phones and websites; this app calls <strong style="color:var(--green);">Place Details</strong> per listing so data matches the Google Maps profile. Leave <strong style="color:var(--white);">Skip Place Details</strong> off unless you want a faster, less accurate scan.
+        <label>App Access Key</label>
+        <input type="password" id="app-password" placeholder="Your COAI access key…"/>
+        <small>Enter the key set in Vercel → APP_PASSWORD. Google API key stays server-side — never exposed to the browser.</small>
       </div>
       <button class="search-btn" id="search-btn" onclick="runSearch()">
         ◉ SCAN FOR LEADS
@@ -751,6 +749,11 @@ summary:focus-visible,
         <input type="checkbox" id="crm-clear-before-scan"/>
         <label for="crm-clear-before-scan">Clear CRM before next scan (replace all)</label>
       </div>
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button class="gsr-btn" style="font-size:9px;" onclick="exportCRMBackup()">↓ Backup JSON</button>
+        <button class="gsr-btn" style="font-size:9px;" onclick="importCRMBackup()">↑ Restore JSON</button>
+      </div>
+      <input type="file" id="crm-import-file" accept=".json" style="display:none" onchange="handleCRMImportFile(this)"/>
     </div>
 
   </div>
@@ -879,6 +882,7 @@ summary:focus-visible,
       <div class="msg-preview" id="msg-preview"></div>
       <div class="modal-actions">
         <button class="copy-btn" onclick="copyMsg()">Copy Message</button>
+        <button class="dismiss-btn" id="ai-gen-btn" onclick="generateAIOutreach()" style="border-color:rgba(167,139,250,0.4);color:#a78bfa;">⚡ AI Personalize</button>
         <button class="dismiss-btn" onclick="closeModal()">Close</button>
       </div>
     </div>
@@ -1136,29 +1140,33 @@ function selectHotOnly(){
   updateCatCount();
 }
 
-// ─── CORS PROXY FETCH ───
-async function gFetch(googleUrl){
-  const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(googleUrl);
-  const resp = await fetch(proxy, {signal: AbortSignal.timeout(15000)});
-  if(!resp.ok) throw new Error('Proxy fetch failed (status ' + resp.status + ').');
-  const wrapper = await resp.json();
-  if(!wrapper.contents) throw new Error('Proxy returned empty response. Try again.');
-  return JSON.parse(wrapper.contents);
+// ─── SERVER FETCH — all Google calls go through our own Vercel backend ───
+// The Google API key never touches the browser. Auth key is stored in sessionStorage.
+async function serverFetch(params){
+  const authKey = sessionStorage.getItem('coai_auth') || '';
+  const qs = Object.entries(params)
+    .filter(([,v]) => v !== undefined && v !== null && v !== '')
+    .map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+  const resp = await fetch('/api/search?' + qs, {
+    headers: { 'Authorization': authKey },
+    signal: AbortSignal.timeout(20000)
+  });
+  if(!resp.ok){
+    const errBody = await resp.json().catch(()=>({}));
+    throw new Error(errBody.error || 'Server error: ' + resp.status);
+  }
+  return resp.json();
 }
 
 // ─── SLEEP ───
 function sleep(ms){return new Promise(r => setTimeout(r, ms));}
 
 // Nearby Search often omits website + phone; Place Details returns what you see on Maps.
-async function enrichPlaceWithDetails(place, apiKey){
+async function enrichPlaceWithDetails(place){
   if(!place || !place.place_id) return place;
-  const fields = [
-    'formatted_phone_number','international_phone_number','website','formatted_address',
-    'opening_hours','business_status','rating','user_ratings_total','url'
-  ].join(',');
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place.place_id)}&fields=${fields}&key=${encodeURIComponent(apiKey)}`;
   try{
-    const data = await gFetch(url);
+    const data = await serverFetch({ mode: 'placedetails', place_id: place.place_id });
     if(data.status !== 'OK' || !data.result) return place;
     const r = data.result;
     return {
@@ -1180,12 +1188,12 @@ async function enrichPlaceWithDetails(place, apiKey){
   }
 }
 
-async function enrichPlacesBatch(places, apiKey, onProgress){
+async function enrichPlacesBatch(places, onProgress){
   const chunk = 8;
   const out = [];
   for(let i = 0; i < places.length; i += chunk){
     const slice = places.slice(i, i + chunk);
-    const batch = await Promise.all(slice.map(p => enrichPlaceWithDetails(p, apiKey)));
+    const batch = await Promise.all(slice.map(p => enrichPlaceWithDetails(p)));
     out.push(...batch);
     if(onProgress) onProgress(Math.min(i + chunk, places.length), places.length);
     await sleep(120);
@@ -1277,22 +1285,22 @@ function passesSearchOptions(lead, place, opts){
   return true;
 }
 
-// ─── PAGINATED NEARBY SEARCH ───
-async function fetchCategoryLeads(cat, lat, lng, radius, apiKey, maxResults){
+// ─── PAGINATED NEARBY SEARCH — calls our Vercel backend (no client-side API key) ───
+async function fetchCategoryLeads(cat, lat, lng, radius, maxResults){
   let results = [];
   let pageToken = null;
   let page = 0;
   const maxPages = maxResults <= 20 ? 1 : maxResults <= 40 ? 2 : 3;
 
   do {
-    let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&keyword=${encodeURIComponent(cat)}&key=${apiKey}`;
-    if(pageToken) url += `&pagetoken=${encodeURIComponent(pageToken)}`;
+    const params = { lat, lng, radius, type: cat };
+    if(pageToken) params.pagetoken = pageToken;
 
-    const data = await gFetch(url);
+    const data = await serverFetch(params);
 
-    if(data.status === 'REQUEST_DENIED') throw new Error('Places API not enabled or key denied. Check Google Cloud Console.');
+    if(data.status === 'REQUEST_DENIED') throw new Error('Google API key denied or Places API not enabled. Check Vercel env vars.');
     if(data.status === 'OVER_QUERY_LIMIT'){await sleep(2500); break;}
-    if(data.status === 'INVALID_REQUEST' && pageToken){break;} // page token not ready yet
+    if(data.status === 'INVALID_REQUEST' && pageToken){break;}
 
     if(data.results && data.results.length > 0){
       results = results.concat(data.results);
@@ -1311,11 +1319,13 @@ async function fetchCategoryLeads(cat, lat, lng, radius, apiKey, maxResults){
 
 // ─── MAIN SEARCH ───
 async function runSearch(){
-  const apiKey = document.getElementById('api-key').value.trim();
-  if(!apiKey){
-    alert('Paste your Google Places API key in the sidebar.\n\nGet one free:\n1. console.cloud.google.com\n2. Enable Places API + Geocoding API\n3. Credentials → Create API Key → No restrictions');
+  const appPassword = document.getElementById('app-password').value.trim();
+  if(!appPassword){
+    alert('Enter your App Access Key in the sidebar.\n\nThis is the APP_PASSWORD you set in Vercel → Settings → Environment Variables.');
     return;
   }
+  // Store in sessionStorage so enrich + outreach calls can reuse it this session
+  sessionStorage.setItem('coai_auth', appPassword);
   if(activeCats.size === 0){alert('Select at least one industry category.');return;}
 
   const location = document.getElementById('location').value.trim() || 'Bakersfield, CA';
@@ -1349,18 +1359,22 @@ async function runSearch(){
 
     let lat = 35.3733, lng = -119.0187;
     try{
-      const geo = await gFetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`);
+      // Verify auth first with a ping
+      const ping = await serverFetch({ mode: 'ping' });
+      if(ping.status !== 'authorized') throw new Error('KEY_DENIED');
+
+      const geo = await serverFetch({ mode: 'geocode', location });
       if(geo.status === 'REQUEST_DENIED') throw new Error('KEY_DENIED');
       if(geo.results && geo.results.length > 0){
         lat = geo.results[0].geometry.location.lat;
         lng = geo.results[0].geometry.location.lng;
       }
     }catch(geoErr){
-      if(geoErr.message === 'KEY_DENIED'){
+      if(geoErr.message === 'KEY_DENIED' || geoErr.message.includes('Unauthorized') || geoErr.message.includes('401')){
         document.getElementById('loading-wrap').style.display = 'none';
         document.getElementById('empty-state').style.display = 'flex';
         document.getElementById('search-btn').disabled = false;
-        alert('API KEY DENIED.\n\n1. Places API enabled?\n2. Geocoding API enabled?\n3. Application Restrictions → NONE\n4. API Restrictions → Don\'t restrict\n5. Wait 5 min then try again');
+        alert('ACCESS DENIED.\n\nThe App Access Key you entered is incorrect.\nCheck Vercel → Settings → Environment Variables → APP_PASSWORD.');
         return;
       }
       console.warn('Geocode failed, using Bakersfield default:', geoErr.message);
@@ -1377,11 +1391,11 @@ async function runSearch(){
       document.getElementById('loading-sub').textContent = `${allLeads.length} leads found so far...`;
 
       try{
-        const places = await fetchCategoryLeads(cat, lat, lng, radius, apiKey, resultsCount);
+        const places = await fetchCategoryLeads(cat, lat, lng, radius, resultsCount);
         let placesForCat = places;
         if(!opts.skipPlaceDetails && places.length){
           document.getElementById('loading-text').textContent = 'LOADING LISTING DETAILS...';
-          placesForCat = await enrichPlacesBatch(places, apiKey, (done, total) => {
+          placesForCat = await enrichPlacesBatch(places, (done, total) => {
             document.getElementById('loading-sub').textContent = `Place Details ${done}/${total} · ${cat}`;
           });
         }
@@ -1492,7 +1506,8 @@ function buildLead(place, cat, opts){
     note: '',
     enrichedPhone: null,
     enrichedEmail: null,
-    enriched: false
+    enriched: false,
+    scanDate: new Date().toISOString()
   };
 }
 
@@ -1513,6 +1528,11 @@ function renderLeads(leads){
     const scoreLabel = lead.score >= 50 ? '🔥 HOT' : lead.score >= 25 ? 'WARM' : 'COLD';
     const phoneDisp = displayPhone(lead);
     const idEnc = idForDomAttr(lead.id);
+    const isStale = lead.scanDate && (Date.now() - new Date(lead.scanDate).getTime()) > 30 * 24 * 60 * 60 * 1000;
+    const scanAgo = lead.scanDate ? (() => {
+      const days = Math.floor((Date.now() - new Date(lead.scanDate).getTime()) / 86400000);
+      return days === 0 ? 'today' : days === 1 ? '1d ago' : days + 'd ago';
+    })() : '';
 
     card.innerHTML = `
       <div class="lead-top">
@@ -1525,6 +1545,7 @@ function renderLeads(leads){
       </div>
       <div class="lead-signals">
         ${lead.signals.map(s=>`<span class="signal-tag sig-${s.type}">${escapeHtml(s.label)}</span>`).join('')}
+        ${isStale ? `<span class="signal-tag" style="background:rgba(255,184,0,0.08);color:var(--amber);border:1px solid rgba(255,184,0,0.2);">⚠ Stale ${scanAgo}</span>` : (scanAgo ? `<span class="signal-tag" style="background:rgba(255,255,255,0.03);color:var(--muted);border:1px solid var(--border);">Scanned ${scanAgo}</span>` : '')}
       </div>
       <div class="lead-actions">
         <button class="action-btn" type="button" onclick="openMapsById(decodeURIComponent('${idEnc}'))">Maps</button>
@@ -1725,6 +1746,107 @@ function closeModal(e){
   }
 }
 
+// ─── AI OUTREACH GENERATOR ───
+async function generateAIOutreach(){
+  if(!activeLead) return;
+  const btn = document.getElementById('ai-gen-btn');
+  const preview = document.getElementById('msg-preview');
+  const authKey = sessionStorage.getItem('coai_auth') || '';
+  if(!authKey){
+    alert('Run a scan first to authenticate — this sets your session key for AI calls.');
+    return;
+  }
+  btn.textContent = '⚡ Generating…';
+  btn.disabled = true;
+  try{
+    const resp = await fetch('/api/outreach', {
+      method: 'POST',
+      headers: {
+        'Authorization': authKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ lead: activeLead, type: msgType }),
+      signal: AbortSignal.timeout(15000)
+    });
+    const data = await resp.json();
+    if(data.fallback){
+      // No AI key configured or call failed — use static template silently
+      console.info('AI outreach fallback:', data.reason);
+    } else if(data.message){
+      preview.textContent = data.message;
+      btn.textContent = '✓ AI Done';
+      setTimeout(()=>{btn.textContent='⚡ AI Personalize';btn.disabled=false;},2000);
+      return;
+    }
+  }catch(e){
+    console.warn('AI outreach failed:', e.message);
+  }
+  btn.textContent = '⚡ AI Personalize';
+  btn.disabled = false;
+}
+
+// ─── CRM BACKUP / RESTORE ───
+function exportCRMBackup(){
+  const payload = {
+    v: 1,
+    exportDate: new Date().toISOString(),
+    leads: allLeads,
+    contactedIds: [...contacted],
+    closedIds: [...closed],
+    scannedCatCount
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `coai-crm-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCRMBackup(){
+  document.getElementById('crm-import-file').click();
+}
+
+function handleCRMImportFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data || !Array.isArray(data.leads)){
+        alert('Invalid backup file — expected COAI CRM JSON format.');
+        return;
+      }
+      if(!confirm(`Restore ${data.leads.length} leads from backup dated ${(data.exportDate||'unknown').slice(0,10)}?\nThis will REPLACE your current CRM.`)) return;
+      allLeads = data.leads;
+      contacted = new Set(data.contactedIds || []);
+      closed = new Set(data.closedIds || []);
+      scannedCatCount = typeof data.scannedCatCount === 'number' ? data.scannedCatCount : new Set(allLeads.map(l=>l.cat)).size;
+      saveCRMToStorage();
+      updateMainChromeVisibility();
+      document.getElementById('empty-state').style.display = allLeads.length ? 'none' : 'flex';
+      if(allLeads.length){
+        document.getElementById('stats-row').style.display = 'grid';
+        document.getElementById('filter-row').style.display = 'flex';
+        document.getElementById('sort-row').style.display = 'flex';
+        document.getElementById('export-bar').style.display = 'flex';
+        setMainMode('prospector');
+        updateStats();
+        updateExportInfo();
+        document.getElementById('s-contacted').textContent = contacted.size;
+        document.getElementById('s-closed').textContent = closed.size;
+      }
+      alert(`✓ Restored ${allLeads.length} leads successfully.`);
+    }catch(err){
+      alert('Failed to parse backup file: ' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
 // ─── CONTACT ENRICHMENT ───
 async function enrichAllLeads(){
   const authKey = sessionStorage.getItem('coai_auth');
@@ -1822,14 +1944,15 @@ function updateLeadCard(lead){
 // ─── EXPORT CSV (all) ───
 function exportCSV(){
   if(allLeads.length === 0){alert('No leads to export.');return;}
-  const headers = ['Name','Category','Address','Phone (Google)','Phone (Enriched)','Email','Has Website','Website','Rating','Reviews','Score','Priority','Status','Note'];
+  const headers = ['Name','Category','Address','Phone (Google)','Phone (Enriched)','Email','Has Website','Website','Rating','Reviews','Score','Priority','Status','Note','Scan Date'];
   const rows = allLeads.map(l=>[
     `"${l.name.replace(/"/g,'""')}"`, `"${l.cat}"`, `"${l.address}"`,
     l.phone||'', l.enrichedPhone||'', l.enrichedEmail||'',
     l.hasWebsite?'Yes':'No', l.website||'',
     l.rating||'', l.reviews||'', l.score, l.priority,
     closed.has(l.id)?'Closed':contacted.has(l.id)?'Contacted':'New',
-    `"${(l.note||'').replace(/"/g,'""')}"`
+    `"${(l.note||'').replace(/"/g,'""')}"`,
+    l.scanDate ? l.scanDate.slice(0,10) : ''
   ]);
   downloadCSV([headers,...rows], `coai-leads-${new Date().toISOString().slice(0,10)}.csv`);
 }

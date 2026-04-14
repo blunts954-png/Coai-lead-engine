@@ -8,8 +8,11 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // AUTH
-  const MASTER_PASSWORD = process.env.APP_PASSWORD || 'COAI-GOD-MODE-2026';
+  // AUTH — no hardcoded fallback; misconfigured env = explicit 500
+  const MASTER_PASSWORD = process.env.APP_PASSWORD;
+  if (!MASTER_PASSWORD) {
+    return res.status(500).json({ error: 'Server misconfiguration: APP_PASSWORD not set in environment.' });
+  }
   if (req.headers['authorization'] !== MASTER_PASSWORD) {
     return res.status(401).json({ error: 'Unauthorized' });
   }

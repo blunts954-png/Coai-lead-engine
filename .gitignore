@@ -1,0 +1,8 @@
+node_modules/
+.idea/
+.cursor/
+.vercel/
+*.log
+.env
+.env.local
+.env.*.local
