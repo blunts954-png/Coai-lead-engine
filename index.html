@@ -262,10 +262,57 @@ summary:focus-visible,
 /* SESSION STATS SIDEBAR */
 .session-stat{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;}
 
+/* SETTINGS PANEL */
+.settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;}
+.settings-overlay.open{display:block;}
+.settings-panel{position:fixed;top:0;right:-420px;width:400px;height:100vh;background:var(--surface2);border-left:1px solid var(--border);z-index:301;transition:right 0.25s ease;overflow-y:auto;display:flex;flex-direction:column;}
+.settings-panel.open{right:0;}
+.settings-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.settings-header h3{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:var(--white);text-transform:uppercase;}
+.settings-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;min-width:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;}
+.settings-close:hover{color:var(--white);}
+.settings-body{padding:1.4rem;flex:1;}
+.settings-body .field{margin-bottom:1rem;}
+.settings-body .field label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block;}
+.settings-body .field input,.settings-body .field select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:var(--sans);font-size:13px;padding:8px 11px;border-radius:3px;outline:none;}
+.settings-body .field input:focus,.settings-body .field select:focus{border-color:var(--green);}
+.settings-body .field select option{background:var(--surface);}
+.settings-body .field small{display:block;color:var(--muted);font-size:10px;margin-top:2px;}
+.settings-footer{padding:1rem 1.4rem;border-top:1px solid var(--border);display:flex;gap:8px;}
+.settings-footer button{flex:1;min-height:40px;border-radius:3px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.06em;}
+.settings-save-btn{background:var(--green);color:var(--black);border:none;}
+.settings-save-btn:hover{opacity:0.85;}
+.settings-reset-btn{background:none;border:1px solid var(--border);color:var(--muted);}
+.settings-reset-btn:hover{border-color:var(--border-hot);color:var(--white);}
+.settings-gear{background:none;border:1px solid var(--border);color:var(--muted);min-width:36px;min-height:36px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.15s;}
+.settings-gear:hover{border-color:var(--green);color:var(--green);}
+
+/* PIPELINE KANBAN */
+.pipeline-panel{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.pipeline-panel.open{display:flex;}
+.pipeline-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:0.75rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface2);}
+.pipeline-toolbar .field{margin-bottom:0;}
+.pipeline-board{flex:1;overflow-x:auto;overflow-y:hidden;padding:1rem 1.5rem;display:flex;gap:16px;}
+.pipeline-col{flex:0 0 260px;min-width:220px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:6px;max-height:100%;overflow:hidden;}
+.pipeline-col-header{padding:0.8rem 1rem;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.pipeline-col-count{font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:100px;}
+.pipeline-col-body{flex:1;overflow-y:auto;padding:0.5rem 0.6rem;display:flex;flex-direction:column;gap:8px;}
+.pipeline-card{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:0.7rem;cursor:pointer;transition:all 0.15s;}
+.pipeline-card:hover{border-color:var(--border-hot);}
+.pipeline-card .pc-name{font-size:12px;font-weight:600;color:var(--white);margin-bottom:4px;}
+.pipeline-card .pc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.pipeline-card .pc-tag{font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:2px;background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border);}
+.pipeline-card .pc-score{font-family:var(--mono);font-size:14px;font-weight:700;}
+.pipeline-card .pc-actions{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.pipeline-card .pc-actions button{font-family:var(--mono);font-size:9px;letter-spacing:0.04em;padding:3px 8px;border-radius:2px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;min-height:28px;}
+.pipeline-card .pc-actions button:hover{border-color:var(--green);color:var(--green);}
+.pipeline-col-empty{padding:1rem;text-align:center;color:var(--muted);font-size:11px;}
+
 @media(max-width:900px){
   .app{grid-template-columns:1fr;height:auto;}
   .sidebar{border-right:none;border-bottom:1px solid var(--border);}
   .main{height:80vh;}
+  .settings-panel{width:100%;right:-100%;}
 }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -277,6 +324,7 @@ summary:focus-visible,
   <div class="header-right">
     <div class="god-badge">⚡ GOD MODE</div>
     <div class="header-status"><span class="pulse"></span>PROSPECTOR READY</div>
+    <button class="settings-gear" onclick="toggleSettings()" title="Settings" aria-label="Open settings">⚙</button>
   </div>
 </header>
 
@@ -702,6 +750,11 @@ summary:focus-visible,
         <input type="checkbox" id="enrich-after-scan" checked/>
         <label for="enrich-after-scan">Auto-enrich websites after scan</label>
       </div>
+      <div style="display:flex;gap:4px;margin-bottom:10px;">
+        <button class="gsr-btn" style="font-size:9px;flex:1;" onclick="applyScorePreset('default')">Default</button>
+        <button class="gsr-btn" style="font-size:9px;flex:1;" onclick="applyScorePreset('aggressive')">Aggressive</button>
+        <button class="gsr-btn" style="font-size:9px;flex:1;" onclick="applyScorePreset('conservative')">Conservative</button>
+      </div>
       <div class="options-grid">
         <div class="field">
           <label>No Website Score</label>
@@ -770,6 +823,7 @@ summary:focus-visible,
     <div class="main-mode-bar" id="main-mode-bar" style="display:none;">
       <button type="button" class="mode-tab active" id="tab-prospector" onclick="setMainMode('prospector')">Prospector</button>
       <button type="button" class="mode-tab" id="tab-crm" onclick="setMainMode('crm')">CRM</button>
+      <button type="button" class="mode-tab" id="tab-pipeline" onclick="setMainMode('pipeline')">Pipeline</button>
       <span class="crm-persist-hint">CRM auto-saves in this browser</span>
     </div>
     <div id="prospector-panel" class="prospector-panel">
@@ -787,6 +841,8 @@ summary:focus-visible,
       <div class="filter-chip" onclick="filterLeads('lowrated',this)">Low Rated</div>
       <div class="filter-chip" onclick="filterLeads('notcontacted',this)">Not Contacted</div>
       <div class="filter-chip" onclick="filterLeads('nosite_norating',this)">No Site + No Rating</div>
+      <div class="filter-chip" onclick="filterLeads('enriched',this)">Enriched</div>
+      <div class="filter-chip" onclick="filterLeads('notenriched',this)">Not Enriched</div>
     </div>
 
     <div class="sort-row" id="sort-row" style="display:none;">
@@ -799,6 +855,14 @@ summary:focus-visible,
       </select>
     </div>
 
+    <div class="bulk-bar" id="bulk-bar" style="display:none;padding:0.6rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface2);align-items:center;gap:10px;">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--muted);" id="bulk-count">0 selected</span>
+      <button class="export-btn" style="font-size:10px;min-height:32px;padding:4px 10px;" onclick="bulkMarkContacted()">Mark Contacted</button>
+      <button class="export-btn" style="font-size:10px;min-height:32px;padding:4px 10px;border-color:rgba(0,255,136,0.3);color:var(--green);" onclick="bulkMarkClosed()">Mark Closed</button>
+      <button class="export-btn" style="font-size:10px;min-height:32px;padding:4px 10px;border-color:rgba(255,59,48,0.35);color:var(--red);" onclick="bulkDeleteSelected()">Delete Selected</button>
+      <button class="export-btn" style="font-size:10px;min-height:32px;padding:4px 10px;" onclick="bulkExportCSV()">Export CSV</button>
+      <button class="export-btn" style="font-size:10px;min-height:32px;padding:4px 10px;margin-left:auto;" onclick="bulkClearSelection()">✕ Clear</button>
+    </div>
     <div class="results-wrap" id="results-wrap">
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">◉</div>
@@ -889,8 +953,33 @@ summary:focus-visible,
           <button type="button" onclick="crmBulkMarkNew()">Mark new</button>
           <button type="button" class="crm-danger" onclick="crmBulkDelete()">Delete selected</button>
         </div>
+        <div class="check-row" style="margin-left:auto;flex-shrink:0;">
+          <input type="checkbox" id="crm-notes-only" onchange="renderCRMTable()"/>
+          <label for="crm-notes-only">Notes only</label>
+        </div>
       </div>
       <div class="crm-table-wrap" id="crm-table-wrap"></div>
+    </div>
+
+    <!-- PIPELINE KANBAN -->
+    <div id="pipeline-panel" class="pipeline-panel">
+      <div class="pipeline-toolbar">
+        <div class="field" style="flex:1;min-width:120px;">
+          <label>Category</label>
+          <select id="pipeline-filter-cat" onchange="renderPipeline()">
+            <option value="">All categories</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;min-width:120px;">
+          <label>Min Score</label>
+          <select id="pipeline-min-score" onchange="renderPipeline()">
+            <option value="0">Any</option>
+            <option value="25">25+</option>
+            <option value="50">50+ (Hot)</option>
+          </select>
+        </div>
+      </div>
+      <div class="pipeline-board" id="pipeline-board"></div>
     </div>
   </div>
 
@@ -925,9 +1014,70 @@ summary:focus-visible,
   </div>
 </div>
 
+<!-- SETTINGS PANEL -->
+<div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)"></div>
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <h3>⚙ Settings</h3>
+    <button class="settings-close" onclick="closeSettings()">×</button>
+  </div>
+  <div class="settings-body">
+    <div class="field">
+      <label>Business Name</label>
+      <input type="text" id="set-business-name" placeholder="Your business name"/>
+    </div>
+    <div class="field">
+      <label>Owner / Rep Name</label>
+      <input type="text" id="set-owner-name" placeholder="Your name"/>
+    </div>
+    <div class="field">
+      <label>Phone Number</label>
+      <input type="text" id="set-phone" placeholder="(555) 123-4567"/>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="set-email" placeholder="you@example.com"/>
+    </div>
+    <div class="field">
+      <label>Business Address</label>
+      <input type="text" id="set-address" placeholder="123 Main St, City ST"/>
+    </div>
+    <div class="field">
+      <label>Website URL</label>
+      <input type="text" id="set-website" placeholder="example.com"/>
+    </div>
+    <div class="field">
+      <label>Starting Price</label>
+      <input type="text" id="set-price" placeholder="$1,200"/>
+    </div>
+    <div class="field">
+      <label>Outreach Tone</label>
+      <select id="set-tone">
+        <option value="casual">Casual — Hey, quick question...</option>
+        <option value="professional">Professional — Dear business owner...</option>
+        <option value="direct">Direct — Here's what I noticed...</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>AI Provider</label>
+      <select id="set-ai-provider">
+        <option value="gemini">Gemini (default — free)</option>
+        <option value="perplexity">Perplexity</option>
+        <option value="anthropic">Anthropic Claude</option>
+      </select>
+      <small>Used for AI outreach personalization. Set the API key in Vercel env vars.</small>
+    </div>
+  </div>
+  <div class="settings-footer">
+    <button class="settings-save-btn" onclick="saveSettings()">Save</button>
+    <button class="settings-reset-btn" onclick="resetDefaultSettings()">Reset</button>
+  </div>
+</div>
+
 <script>
 // ─── STATE ───
 const CRM_LS_KEY = 'coai_lead_crm_v1';
+const SETTINGS_LS_KEY = 'coai_settings_v1';
 let allLeads = [];
 let currentFilter = 'all';
 let activeLead = null;
@@ -949,6 +1099,94 @@ function escapeHtml(str){
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
+}
+
+const DEFAULT_SETTINGS = {
+  businessName: 'Chaotically Organized AI',
+  ownerName: 'Jason',
+  phone: '(661) 610-9198',
+  email: '',
+  address: '1712 19th St #216, Bakersfield CA',
+  website: 'chaoticallyorganizedai.com',
+  price: '$1,200',
+  tone: 'casual',
+  aiProvider: 'gemini'
+};
+
+let appSettings = { ...DEFAULT_SETTINGS };
+
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_LS_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    if(data && typeof data === 'object') appSettings = { ...DEFAULT_SETTINGS, ...data };
+  }catch(e){ console.warn('Settings load failed', e); }
+}
+
+function saveSettingsToStorage(){
+  try{
+    localStorage.setItem(SETTINGS_LS_KEY, JSON.stringify(appSettings));
+  }catch(e){ console.warn('Settings save failed', e); }
+}
+
+function syncSettingsToForm(){
+  document.getElementById('set-business-name').value = appSettings.businessName || '';
+  document.getElementById('set-owner-name').value = appSettings.ownerName || '';
+  document.getElementById('set-phone').value = appSettings.phone || '';
+  document.getElementById('set-email').value = appSettings.email || '';
+  document.getElementById('set-address').value = appSettings.address || '';
+  document.getElementById('set-website').value = appSettings.website || '';
+  document.getElementById('set-price').value = appSettings.price || '';
+  document.getElementById('set-tone').value = appSettings.tone || 'casual';
+  document.getElementById('set-ai-provider').value = appSettings.aiProvider || 'gemini';
+}
+
+function syncSettingsFromForm(){
+  appSettings.businessName = document.getElementById('set-business-name').value.trim();
+  appSettings.ownerName = document.getElementById('set-owner-name').value.trim();
+  appSettings.phone = document.getElementById('set-phone').value.trim();
+  appSettings.email = document.getElementById('set-email').value.trim();
+  appSettings.address = document.getElementById('set-address').value.trim();
+  appSettings.website = document.getElementById('set-website').value.trim();
+  appSettings.price = document.getElementById('set-price').value.trim();
+  appSettings.tone = document.getElementById('set-tone').value;
+  appSettings.aiProvider = document.getElementById('set-ai-provider').value;
+}
+
+function toggleSettings(){
+  const panel = document.getElementById('settings-panel');
+  const overlay = document.getElementById('settings-overlay');
+  const isOpen = panel.classList.contains('open');
+  if(isOpen){
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+  }else{
+    syncSettingsToForm();
+    panel.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+
+function closeSettings(e){
+  if(!e || e.target === document.getElementById('settings-overlay')){
+    document.getElementById('settings-panel').classList.remove('open');
+    document.getElementById('settings-overlay').classList.remove('open');
+  }
+}
+
+function saveSettings(){
+  syncSettingsFromForm();
+  saveSettingsToStorage();
+  document.getElementById('settings-panel').classList.remove('open');
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+
+function resetDefaultSettings(){
+  if(!confirm('Reset all settings to defaults?')) return;
+  appSettings = { ...DEFAULT_SETTINGS };
+  syncSettingsToForm();
+  saveSettingsToStorage();
 }
 
 function saveCRMToStorage(){
@@ -991,21 +1229,27 @@ function updateMainChromeVisibility(){
 }
 
 function setMainMode(mode){
-  mainMode = mode === 'crm' ? 'crm' : 'prospector';
+  mainMode = mode === 'crm' ? 'crm' : mode === 'pipeline' ? 'pipeline' : 'prospector';
   const tabP = document.getElementById('tab-prospector');
   const tabC = document.getElementById('tab-crm');
+  const tabPi = document.getElementById('tab-pipeline');
   const panelP = document.getElementById('prospector-panel');
   const panelC = document.getElementById('crm-panel');
+  const panelPi = document.getElementById('pipeline-panel');
   if(tabP) tabP.classList.toggle('active', mainMode === 'prospector');
   if(tabC) tabC.classList.toggle('active', mainMode === 'crm');
+  if(tabPi) tabPi.classList.toggle('active', mainMode === 'pipeline');
   if(panelP) panelP.style.display = mainMode === 'prospector' ? 'flex' : 'none';
-  if(panelC){
-    panelC.classList.toggle('open', mainMode === 'crm');
-    panelC.style.display = mainMode === 'crm' ? 'flex' : 'none';
-  }
+  if(panelC) panelC.style.display = mainMode === 'crm' ? 'flex' : 'none';
+  if(panelC) panelC.classList.toggle('open', mainMode === 'crm');
+  if(panelPi) panelPi.style.display = mainMode === 'pipeline' ? 'flex' : 'none';
+  if(panelPi) panelPi.classList.toggle('open', mainMode === 'pipeline');
   if(mainMode === 'crm'){
     repopulateCrmCategorySelect();
     renderCRMTable();
+  }else if(mainMode === 'pipeline'){
+    repopulatePipelineCategorySelect();
+    renderPipeline();
   }else{
     applySortAndRender();
   }
@@ -1049,6 +1293,8 @@ function getFilteredLeads(){
   else if(currentFilter === 'lowrated') filtered = filtered.filter(l=>l.rating>0&&l.rating<4);
   else if(currentFilter === 'notcontacted') filtered = filtered.filter(l=>!contacted.has(l.id)&&!closed.has(l.id));
   else if(currentFilter === 'nosite_norating') filtered = filtered.filter(l=>!l.hasWebsite&&l.rating===0);
+  else if(currentFilter === 'enriched') filtered = filtered.filter(l=>l.enriched&&(l.enrichedPhone||l.enrichedEmail));
+  else if(currentFilter === 'notenriched') filtered = filtered.filter(l=>!l.enriched||!(l.enrichedPhone||l.enrichedEmail));
   return filtered;
 }
 
@@ -1064,7 +1310,9 @@ function getCRMFilteredLeads(){
   else if(st === 'contacted') rows = rows.filter(l => getLeadCrmStatus(l.id) === 'contacted');
   else if(st === 'closed') rows = rows.filter(l => getLeadCrmStatus(l.id) === 'closed');
   if(q){
+    const notesOnly = document.getElementById('crm-notes-only')?.checked;
     rows = rows.filter(l => {
+      if(notesOnly) return (l.note || '').toLowerCase().includes(q);
       const blob = [
         l.name, l.address, l.cat, l.phone, l.enrichedPhone, l.enrichedEmail, l.website, l.note
       ].filter(Boolean).join(' ').toLowerCase();
@@ -1242,6 +1490,40 @@ function parseNum(id, fallback){
   const raw = document.getElementById(id)?.value;
   const n = Number(raw);
   return Number.isFinite(n) ? n : fallback;
+}
+
+const SCORE_PRESETS = {
+  default: { noWebsite: 40, lowRating: 25, noRating: 20, lowReviews: 15, noPhone: 10, zeroReviews: 10 },
+  aggressive: { noWebsite: 50, lowRating: 30, noRating: 25, lowReviews: 20, noPhone: 15, zeroReviews: 15 },
+  conservative: { noWebsite: 30, lowRating: 20, noRating: 15, lowReviews: 10, noPhone: 5, zeroReviews: 5 }
+};
+
+function applyScorePreset(name){
+  const p = SCORE_PRESETS[name];
+  if(!p) return;
+  document.getElementById('weight-no-website').value = p.noWebsite;
+  document.getElementById('weight-low-rating').value = p.lowRating;
+  document.getElementById('weight-no-rating').value = p.noRating;
+  document.getElementById('weight-low-reviews').value = p.lowReviews;
+  document.getElementById('weight-no-phone').value = p.noPhone;
+  document.getElementById('weight-zero-reviews').value = p.zeroReviews;
+  // Re-score existing leads
+  const opts = getSearchOptions();
+  allLeads.forEach(lead => {
+    const weights = opts.scoreWeights;
+    let score = 0;
+    if(!lead.hasWebsite) score += weights.noWebsite;
+    if(lead.rating > 0 && lead.rating < 3.5) score += weights.lowRating;
+    if(lead.rating === 0) score += weights.noRating;
+    if(lead.reviews < (opts.lowReviewThreshold || 10)) score += weights.lowReviews;
+    if(!lead.hasPhone) score += weights.noPhone;
+    if(lead.reviews === 0) score += weights.zeroReviews;
+    lead.score = score;
+    lead.priority = score >= 50 ? 'high' : score >= 25 ? 'med' : 'low';
+  });
+  applySortAndRender();
+  updateStats();
+  saveCRMToStorage();
 }
 
 function getSearchOptions(){
@@ -1461,6 +1743,23 @@ async function runSearch(){
             if(seenBizKeys.has(key)) return;
             seenBizKeys.add(key);
           }
+          // Phone dedup — skip if same phone number exists in current results or stored leads
+          if(lead.phone){
+            const phoneClean = lead.phone.replace(/\D/g, '');
+            if(phoneClean && phoneClean.length >= 7){
+              const phoneDup = allLeads.find(l => {
+                const lp = displayPhone(l).replace(/\D/g, '');
+                return lp && lp === phoneClean;
+              });
+              if(phoneDup){
+                // Merge enriched data from duplicate (e.g., website from rescan)
+                if(lead.website && !phoneDup.website){ phoneDup.website = lead.website; phoneDup.hasWebsite = true; }
+                if(lead.name && phoneDup.name !== lead.name) phoneDup.name = lead.name;
+                seenBizKeys.add(buildBizKey(lead));
+                return;
+              }
+            }
+          }
           allLeads.push(lead);
           existingIds.add(place.place_id);
         });
@@ -1559,6 +1858,7 @@ function buildLead(place, cat, opts){
     enrichedPhone: null,
     enrichedEmail: null,
     enriched: false,
+    pipelineStage: 'new',
     scanDate: new Date().toISOString()
   };
 }
@@ -1588,11 +1888,14 @@ function renderLeads(leads){
 
     card.innerHTML = `
       <div class="lead-top">
-        <div class="lead-name-group">
-          <div class="lead-name">${escapeHtml(lead.name)}</div>
-          <div class="lead-meta">
-            <span class="lead-cat-tag">${escapeHtml(String(lead.cat).toUpperCase())}</span>
-            <span class="lead-address">${escapeHtml(lead.address)}</span>
+        <div class="lead-name-group" style="display:flex;align-items:flex-start;gap:10px;">
+          <input type="checkbox" class="lead-checkbox" data-id="${idEnc}" onchange="onBulkCheckChange(this)" style="accent-color:var(--green);margin-top:4px;flex-shrink:0;" aria-label="Select ${escapeHtml(lead.name)}"/>
+          <div>
+            <div class="lead-name">${escapeHtml(lead.name)}</div>
+            <div class="lead-meta">
+              <span class="lead-cat-tag">${escapeHtml(String(lead.cat).toUpperCase())}</span>
+              <span class="lead-address">${escapeHtml(lead.address)}</span>
+            </div>
           </div>
         </div>
         <div class="lead-score-hero ${scoreClass}">
@@ -1602,6 +1905,7 @@ function renderLeads(leads){
       </div>
       <div class="lead-signals">
         ${lead.signals.map(s=>`<span class="signal-tag sig-${s.type}">${escapeHtml(s.label)}</span>`).join('')}
+        ${lead.enriched && (lead.enrichedPhone || lead.enrichedEmail) ? `<span class="signal-tag sig-ok">✓ Contact Enriched</span>` : (lead.enriched ? `<span class="signal-tag sig-warn">○ Partial Enrich</span>` : (lead.hasWebsite ? `<span class="signal-tag" style="background:rgba(255,255,255,0.03);color:var(--muted);border:1px solid var(--border);">Pending Enrich</span>` : ''))}
         ${isStale ? `<span class="signal-tag" style="background:rgba(255,184,0,0.08);color:var(--amber);border:1px solid rgba(255,184,0,0.2);">⚠ Stale ${scanAgo}</span>` : (scanAgo ? `<span class="signal-tag" style="background:rgba(255,255,255,0.03);color:var(--muted);border:1px solid var(--border);">Scanned ${scanAgo}</span>` : '')}
       </div>
       <div class="lead-actions">
@@ -1658,6 +1962,7 @@ function updateStats(){
 
 function updateExportInfo(){
   document.getElementById('export-info').textContent = `${allLeads.length} leads · ${contacted.size} contacted · ${closed.size} closed`;
+  updateWebhookRetryBadge();
 }
 
 // ─── ACTIONS ───
@@ -1671,6 +1976,54 @@ function openWebhookModal(){
 function closeWebhookModal(e){
   if(!e || e.target === document.getElementById('webhook-modal') || e.target.classList.contains('close-btn')){
     document.getElementById('webhook-modal').classList.remove('open');
+  }
+}
+
+const WEBHOOK_RETRY_LS_KEY = 'coai_webhook_retry_v1';
+
+function getWebhookRetries(){
+  try{ const r = localStorage.getItem(WEBHOOK_RETRY_LS_KEY); return r ? JSON.parse(r) : []; }catch{ return []; }
+}
+
+function saveWebhookRetries(retries){
+  try{ localStorage.setItem(WEBHOOK_RETRY_LS_KEY, JSON.stringify(retries)); }catch{}
+}
+
+function updateWebhookRetryBadge(){
+  const retries = getWebhookRetries();
+  const existing = document.getElementById('wh-retry-badge');
+  if(existing) existing.remove();
+  if(retries.length === 0) return;
+  const badge = document.createElement('span');
+  badge.id = 'wh-retry-badge';
+  badge.style.cssText = 'font-family:var(--mono);font-size:9px;color:var(--red);background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.25);padding:2px 8px;border-radius:100px;cursor:pointer;';
+  badge.textContent = `⚠ ${retries.length} webhook retries`;
+  badge.onclick = retryFailedWebhooks;
+  const bar = document.querySelector('.export-bar');
+  if(bar) bar.appendChild(badge);
+}
+
+async function retryFailedWebhooks(){
+  const retries = getWebhookRetries();
+  if(retries.length === 0){ alert('No failed webhooks to retry.'); return; }
+  const entry = retries[0];
+  const { url, segment, leads } = entry;
+  if(!url){ retries.shift(); saveWebhookRetries(retries); updateWebhookRetryBadge(); return; }
+  try{
+    const resp = await fetch(url, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, mode: 'no-cors',
+      body: JSON.stringify({
+        source: 'COAI Lead Engine v2 (retry)',
+        timestamp: new Date().toISOString(),
+        leads
+      })
+    });
+    retries.shift();
+    saveWebhookRetries(retries);
+    updateWebhookRetryBadge();
+    alert(`✓ Retry successful! ${leads.length} leads sent. ${retries.length > 0 ? `${retries.length} remaining.` : 'All cleared.'}`);
+  }catch(e){
+    alert('Retry failed: ' + e.message);
   }
 }
 
@@ -1717,9 +2070,14 @@ async function pushToWebhook(){
       btn.disabled = false;
     }, 3000);
   } catch (err) {
-    status.textContent = '✖ Error: ' + err.message;
+    status.textContent = '✖ Error: ' + err.message + ' — saved for retry';
     btn.disabled = false;
     btn.textContent = '🚀 RETRY PUSH';
+    // Save to retry queue
+    const retries = getWebhookRetries();
+    retries.push({ url, segment, leads: targetLeads, failedAt: new Date().toISOString() });
+    saveWebhookRetries(retries);
+    updateWebhookRetryBadge();
   }
 }
 
@@ -1818,34 +2176,44 @@ function setMsgType(type, btn){
 
 function generateMsg(lead, type){
   if(!lead) return '';
+  const s = appSettings;
   const noSite = !lead.hasWebsite;
   const lowRating = lead.rating > 0 && lead.rating < 3.5;
   const noRating = lead.rating === 0;
   const pain = noSite ? 'no website showing up on Google' : lowRating ? `a ${lead.rating}-star rating online` : noRating ? 'no reviews or ratings yet on Google' : 'a digital presence that could use some work';
+  const tone = s.tone || 'casual';
+  const location = (s.address || '').split(',').pop()?.trim() || 'your area';
+  const bizShort = s.businessName || 'our agency';
+
+  const greeting = {
+    casual: `Hey, I noticed ${lead.name} has ${pain}. I'm ${s.ownerName || 'your rep'} with ${s.businessName || 'our team'} here in ${location} — we build websites and AI systems for local businesses like yours starting at ${s.price || '$1,200'}, and you own everything outright. No monthly fees. Would you be open to a free 10-minute audit call? ${s.phone || ''}`,
+    professional: `Hello, I came across ${lead.name} while researching ${lead.cat} businesses in ${location} and noticed ${pain}. My name is ${s.ownerName || 'a business consultant'} with ${s.businessName || 'a local agency'}. We specialize in helping businesses like yours improve their online presence — starting at ${s.price || '$1,200'} with full ownership and no recurring platform fees.\n\nI'd love to schedule a brief 15-minute consultation to discuss how we can help you capture more leads. Please feel free to reach out at ${s.phone || 'the number above'}.\n\nBest regards,\n${s.ownerName || 'Team'}\n${s.businessName || ''}`,
+    direct: `${lead.name} has ${pain}. That's costing you leads every day. ${s.ownerName || 'We'} with ${s.businessName || 'our agency'} fix this. We build websites and AI systems starting at ${s.price || '$1,200'} — you own it, no monthly fees. Want a free 10-minute audit to see exactly what you're missing? ${s.phone || 'Reply to this message'}`
+  };
 
   if(type === 'text'){
-    return `Hey, I noticed ${lead.name} has ${pain}. I'm Jason with Chaotically Organized AI here in Bakersfield — we build websites and AI systems for local businesses like yours starting at $1,200, and you own everything outright. No monthly fees. Would you be open to a free 10-minute audit call? (661) 610-9198`;
+    return greeting[tone] || greeting.casual;
   }
   if(type === 'email'){
     return `Subject: Your Google listing for ${lead.name} — quick question
 
 Hi there,
 
-I was searching for ${lead.cat} businesses in Bakersfield and noticed ${lead.name} has ${pain}.
+I was searching for ${lead.cat} businesses in ${location} and noticed ${lead.name} has ${pain}.
 
-I'm Jason Manuel, founder of Chaotically Organized AI (chaoticallyorganizedai.com). We build sovereign websites and AI lead capture systems for local service businesses — starting at $1,200 with full ownership and zero monthly platform fees.
+I'm ${s.ownerName || 'your rep'}, ${tone === 'professional' ? 'representing' : 'founder of'} ${s.businessName || 'a local agency'} (${s.website || 'our site'}). We build sovereign websites and AI lead capture systems for local service businesses — starting at ${s.price || '$1,200'} with full ownership and zero monthly platform fees.
 
 I'd love to do a free 15-minute audit of your current online presence and show you exactly what it's costing you in missed leads.
 
 Worth a quick call?
 
-— Jason
-(661) 610-9198
-chaoticallyorganizedai.com
-1712 19th St #216, Bakersfield CA`;
+${tone === 'professional' ? 'Best regards' : '—'} ${s.ownerName || 'Team'}
+${s.phone || ''}
+${s.website || ''}
+${s.address || ''}`;
   }
   if(type === 'voicemail'){
-    return `Hey, this is Jason Manuel calling for ${lead.name}. I run Chaotically Organized AI here in Bakersfield — we help local businesses fix their online presence so they stop losing leads to competitors. I noticed ${pain} on your Google listing and wanted to offer a free audit — takes about 15 minutes and I'll show you exactly what it's costing you. Give me a call back at 661-610-9198. That's 661-610-9198. Thanks — talk soon.`;
+    return `Hey, this is ${s.ownerName || 'your rep'} calling for ${lead.name}. I run ${s.businessName || 'an agency'} here in ${location} — we help local businesses fix their online presence so they stop losing leads to competitors. I noticed ${pain} on your Google listing and wanted to offer a free audit — takes about 15 minutes and I'll show you exactly what it's costing you. Give me a call back at ${s.phone || 'the number I just dialed'}. Thanks — talk soon.`;
   }
   return '';
 }
@@ -2003,30 +2371,118 @@ async function generateAIOutreach(){
   btn.disabled = false;
 }
 
-// ─── CRM BACKUP / RESTORE ───
-function clearAll(){
-  if(!confirm('ERASE ALL LEADS? This cannot be undone.')) return;
-  allLeads = [];
-  contacted = new Set();
-  closed = new Set();
-  activeCats = new Set();
-  scannedCatCount = 0;
-  searchCache.clear();
-  saveCRMToStorage();
-  updateMainChromeVisibility();
-  document.getElementById('empty-state').style.display = 'flex';
-  document.getElementById('stats-row').style.display = 'none';
-  document.getElementById('filter-row').style.display = 'none';
-  document.getElementById('sort-row').style.display = 'none';
-  document.getElementById('export-bar').style.display = 'none';
-  const container = document.getElementById('leads-container');
-  if(container) container.innerHTML = '';
-  document.getElementById('st-found').textContent = '0';
-  document.getElementById('st-hot-stats').textContent = '0';
-  document.getElementById('st-nosite').textContent = '0';
-  document.getElementById('st-cats').textContent = '0';
+// ─── PIPELINE KANBAN ───
+const PIPELINE_COLS = [
+  { key: 'new', label: 'New', color: '#666' },
+  { key: 'contacted', label: 'Contacted', color: '#ffb800' },
+  { key: 'interested', label: 'Interested', color: '#3b9eff' },
+  { key: 'proposal', label: 'Proposal Sent', color: '#a78bfa' },
+  { key: 'won', label: 'Closed Won', color: '#00ff88' },
+  { key: 'lost', label: 'Closed Lost', color: '#ff3b30' }
+];
+
+function getPipelineStage(lead){
+  if(lead.pipelineStage && PIPELINE_COLS.some(c => c.key === lead.pipelineStage)) return lead.pipelineStage;
+  if(closed.has(lead.id)) return 'won';
+  if(contacted.has(lead.id)) return 'contacted';
+  return 'new';
 }
 
+function movePipelineStage(id, newStage){
+  const lead = allLeads.find(l => l.id === id);
+  if(!lead) return;
+  lead.pipelineStage = newStage;
+  if(newStage === 'won' || newStage === 'lost'){
+    closed.add(id); contacted.add(id);
+  }else if(newStage === 'contacted' || newStage === 'interested' || newStage === 'proposal'){
+    contacted.add(id); closed.delete(id);
+  }else{
+    contacted.delete(id); closed.delete(id);
+  }
+  saveCRMToStorage();
+  renderPipeline();
+  applySortAndRender();
+  updateStats();
+  updateExportInfo();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  document.getElementById('s-closed').textContent = closed.size;
+}
+
+function repopulatePipelineCategorySelect(){
+  const sel = document.getElementById('pipeline-filter-cat');
+  if(!sel) return;
+  const prev = sel.value;
+  const cats = [...new Set(allLeads.map(l => l.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML = '<option value="">All categories</option>';
+  cats.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    if(c === prev) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function renderPipeline(){
+  const board = document.getElementById('pipeline-board');
+  if(!board) return;
+  const catFilter = document.getElementById('pipeline-filter-cat')?.value || '';
+  const minScore = parseInt(document.getElementById('pipeline-min-score')?.value || '0', 10) || 0;
+
+  let filtered = [...allLeads];
+  if(catFilter) filtered = filtered.filter(l => l.cat === catFilter);
+  if(minScore > 0) filtered = filtered.filter(l => l.score >= minScore);
+
+  // Assign each lead to a pipeline column
+  const cols = {};
+  PIPELINE_COLS.forEach(c => cols[c.key] = []);
+  filtered.forEach(lead => {
+    const stage = getPipelineStage(lead);
+    if(cols[stage]) cols[stage].push(lead);
+    else cols['new'].push(lead);
+  });
+
+  // Sort each column by score descending
+  Object.values(cols).forEach(arr => arr.sort((a,b) => b.score - a.score));
+
+  let html = '';
+  PIPELINE_COLS.forEach(col => {
+    const leadsInCol = cols[col.key] || [];
+    html += `<div class="pipeline-col">
+      <div class="pipeline-col-header" style="border-left:3px solid ${col.color};">
+        <span>${col.label}</span>
+        <span class="pipeline-col-count">${leadsInCol.length}</span>
+      </div>
+      <div class="pipeline-col-body">
+        ${leadsInCol.length === 0 ? '<div class="pipeline-col-empty">Drop leads here</div>' : leadsInCol.map(lead => {
+          const idEnc = idForDomAttr(lead.id);
+          const stage = getPipelineStage(lead);
+          const stageIdx = PIPELINE_COLS.findIndex(c => c.key === stage);
+          const nextStage = stageIdx < PIPELINE_COLS.length - 1 ? PIPELINE_COLS[stageIdx + 1] : null;
+          const prevStage = stageIdx > 0 ? PIPELINE_COLS[stageIdx - 1] : null;
+          const scoreCls = lead.score >= 50 ? 'sig-bad' : lead.score >= 25 ? 'sig-warn' : '';
+          return `<div class="pipeline-card" onclick="openOutreach(decodeURIComponent('${idEnc}'))" title="Click to generate outreach">
+            <div class="pc-name">${escapeHtml(lead.name)}</div>
+            <div class="pc-meta">
+              <span class="pc-tag">${escapeHtml(lead.cat)}</span>
+              <span class="pc-score ${scoreCls}" style="font-size:11px;">${lead.score}pts</span>
+              ${lead.rating > 0 ? `<span class="pc-tag">${lead.rating}★</span>` : ''}
+            </div>
+            <div class="pc-actions">
+              ${prevStage ? `<button type="button" onclick="event.stopPropagation();movePipelineStage(decodeURIComponent('${idEnc}'),'${prevStage.key}')">◀ ${prevStage.label}</button>` : ''}
+              ${nextStage ? `<button type="button" onclick="event.stopPropagation();movePipelineStage(decodeURIComponent('${idEnc}'),'${nextStage.key}')">${nextStage.label} ▶</button>` : ''}
+              <button type="button" onclick="event.stopPropagation();openMapsById(decodeURIComponent('${idEnc}'))">Maps</button>
+              <button type="button" onclick="event.stopPropagation();deleteLead(decodeURIComponent('${idEnc}'))">Del</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  board.innerHTML = html;
+}
+
+// ─── CRM BACKUP / RESTORE ───
 function exportCRMBackup(){
   const payload = {
     v: 1,
@@ -2221,8 +2677,11 @@ function downloadCSV(data, filename){
 }
 
 function clearAll(){
-  if(!confirm('Clear all leads? Cannot be undone.')) return;
+  if(!confirm('ERASE ALL LEADS? This cannot be undone.')) return;
   allLeads = []; contacted.clear(); closed.clear();
+  activeCats = new Set();
+  scannedCatCount = 0;
+  searchCache.clear();
   crmSelected.clear();
   crmExpandId = null;
   document.getElementById('leads-container').innerHTML = '';
@@ -2234,6 +2693,10 @@ function clearAll(){
   updateMainChromeVisibility();
   const wrap = document.getElementById('crm-table-wrap');
   if(wrap) wrap.innerHTML = '';
+  document.getElementById('st-found').textContent = '0';
+  document.getElementById('st-hot-stats').textContent = '0';
+  document.getElementById('st-nosite').textContent = '0';
+  document.getElementById('st-cats').textContent = '0';
   updateStats();
   saveCRMToStorage();
 }
@@ -2274,6 +2737,82 @@ function crmBulkMarkNew(){
   renderCRMTable();
   document.getElementById('s-contacted').textContent = contacted.size;
   updateExportInfo();
+}
+
+// ─── PROSPECTOR BULK ACTIONS ───
+function onBulkCheckChange(checkbox){
+  const id = decodeURIComponent(checkbox.dataset.id);
+  if(checkbox.checked) crmSelected.add(id);
+  else crmSelected.delete(id);
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  const bar = document.getElementById('bulk-bar');
+  const count = document.getElementById('bulk-count');
+  const n = crmSelected.size;
+  if(!bar || !count) return;
+  if(n > 0){
+    bar.style.display = 'flex';
+    count.textContent = n + ' selected';
+  }else{
+    bar.style.display = 'none';
+  }
+}
+
+function bulkMarkContacted(){
+  if(crmSelected.size === 0) return;
+  crmSelected.forEach(id => { if(!closed.has(id)) contacted.add(id); });
+  saveCRMToStorage();
+  applySortAndRender();
+  updateBulkBar();
+  document.getElementById('s-contacted').textContent = contacted.size;
+  updateExportInfo();
+}
+
+function bulkMarkClosed(){
+  if(crmSelected.size === 0) return;
+  crmSelected.forEach(id => { closed.add(id); contacted.add(id); });
+  saveCRMToStorage();
+  applySortAndRender();
+  updateBulkBar();
+  document.getElementById('s-closed').textContent = closed.size;
+  document.getElementById('s-contacted').textContent = contacted.size;
+  updateExportInfo();
+}
+
+function bulkDeleteSelected(){
+  if(crmSelected.size === 0 || !confirm(`Delete ${crmSelected.size} selected leads?`)) return;
+  const kill = new Set(crmSelected);
+  allLeads = allLeads.filter(l => !kill.has(l.id));
+  kill.forEach(id => { contacted.delete(id); closed.delete(id); });
+  crmSelected.clear();
+  saveCRMToStorage();
+  applySortAndRender();
+  updateBulkBar();
+  updateStats();
+  updateExportInfo();
+}
+
+function bulkExportCSV(){
+  if(crmSelected.size === 0){ alert('Select leads first.'); return; }
+  const selected = allLeads.filter(l => crmSelected.has(l.id));
+  if(selected.length === 0) return;
+  const headers = ['Name','Category','Address','Phone','Email','Website','Rating','Reviews','Score','Status','Note'];
+  const rows = selected.map(l => [
+    `"${l.name.replace(/"/g,'""')}"`, `"${l.cat}"`, `"${l.address.replace(/"/g,'""')}"`,
+    l.phone||'', l.enrichedEmail||'', l.website||'',
+    l.rating||'', l.reviews||'', l.score,
+    closed.has(l.id)?'Closed':contacted.has(l.id)?'Contacted':'New',
+    `"${(l.note||'').replace(/"/g,'""')}"`
+  ]);
+  downloadCSV([headers, ...rows], 'coai-bulk-export.csv');
+}
+
+function bulkClearSelection(){
+  crmSelected.clear();
+  document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = false);
+  updateBulkBar();
 }
 
 function crmBulkDelete(){
@@ -2370,6 +2909,7 @@ function renderCRMTable(){
 }
 
 function initApp(){
+  loadSettings();
   if(!loadCRMFromStorage(true) || allLeads.length === 0) return;
   document.getElementById('empty-state').style.display = 'none';
   updateMainChromeVisibility();
