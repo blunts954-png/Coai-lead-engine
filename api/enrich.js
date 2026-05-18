@@ -1,4 +1,5 @@
-// api/enrich.js — COAI Lead Engine Contact Enrichment
+// api/enrich.js — DEPRECATED: Replaced by api/scrape.js (God-Tier scraper)
+// Kept for backward compatibility during migration. Routes to api/scrape.
 // Scrapes websites for emails, phones, and high-signal numeric values.
 // Uses a hybrid strategy: raw HTML first, optional headless render fallback.
 
