@@ -9,3 +9,4 @@ node_modules/
 .env.txt
 .env.example
 .vercel
+.env*

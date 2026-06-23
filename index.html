@@ -511,6 +511,13 @@ summary:focus-visible,
         </div>
         <div class="cat-grid">
           <div class="cat-btn" data-cat="smoke shop" data-vertical="retail" onclick="toggleCat(this)">Smoke Shop</div>
+          <div class="cat-btn" data-cat="head shop" data-vertical="retail" onclick="toggleCat(this)">Head Shop</div>
+          <div class="cat-btn" data-cat="vape shop" data-vertical="retail" onclick="toggleCat(this)">Vape Shop</div>
+          <div class="cat-btn" data-cat="tobacco shop" data-vertical="retail" onclick="toggleCat(this)">Tobacco Shop</div>
+          <div class="cat-btn" data-cat="CBD store" data-vertical="retail" onclick="toggleCat(this)">CBD Store</div>
+          <div class="cat-btn" data-cat="glass shop" data-vertical="retail" onclick="toggleCat(this)">Glass Shop</div>
+          <div class="cat-btn" data-cat="hookah shop" data-vertical="retail" onclick="toggleCat(this)">Hookah Shop</div>
+          <div class="cat-btn" data-cat="kratom shop" data-vertical="retail" onclick="toggleCat(this)">Kratom Shop</div>
           <div class="cat-btn" data-cat="jewelry store" data-vertical="retail" onclick="toggleCat(this)">Jewelry</div>
           <div class="cat-btn" data-cat="pawn shop" data-vertical="retail" onclick="toggleCat(this)">Pawn Shop</div>
           <div class="cat-btn" data-cat="music store" data-vertical="retail" onclick="toggleCat(this)">Music Store</div>
@@ -871,7 +878,7 @@ summary:focus-visible,
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">◉</div>
         <div class="empty-title">God Mode Ready</div>
-        <p class="empty-sub">Pick industries, set radius, scan. Each result is enriched with Google Place Details (phone + website) so scores match what you see on Maps—not the thin Nearby Search payload alone.</p>
+        <p class="empty-sub">Pick industries, set radius, scan. Finds smoke shops, head shops, vape shops, and more. Each result is enriched with Google Place Details (phone + website) so you can reach out immediately.</p>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.2rem;margin-top:1rem;max-width:340px;text-align:left;">
           <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:0.14em;margin-bottom:0.75rem;">HOT LEAD SIGNALS</div>
           <div style="font-size:12px;color:var(--muted);line-height:2.1;">
@@ -1027,8 +1034,8 @@ summary:focus-visible,
   </div>
   <div class="settings-body">
     <div class="field">
-      <label>Business Name</label>
-      <input type="text" id="set-business-name" placeholder="Your business name"/>
+      <label>Business / Supplier Name</label>
+      <input type="text" id="set-business-name" placeholder="Your name or business"/>
     </div>
     <div class="field">
       <label>Owner / Rep Name</label>
@@ -1043,16 +1050,16 @@ summary:focus-visible,
       <input type="email" id="set-email" placeholder="you@example.com"/>
     </div>
     <div class="field">
-      <label>Business Address</label>
-      <input type="text" id="set-address" placeholder="123 Main St, City ST"/>
+      <label>Location</label>
+      <input type="text" id="set-address" placeholder="City, State"/>
     </div>
     <div class="field">
-      <label>Website URL</label>
-      <input type="text" id="set-website" placeholder="example.com"/>
+      <label>Website (optional)</label>
+      <input type="text" id="set-website" placeholder="yourstore.com"/>
     </div>
     <div class="field">
-      <label>Starting Price</label>
-      <input type="text" id="set-price" placeholder="$1,200"/>
+      <label>Pricing / Offer</label>
+      <input type="text" id="set-price" placeholder="Wholesale pricing"/>
     </div>
     <div class="field">
       <label>Outreach Tone</label>
@@ -1106,13 +1113,13 @@ function escapeHtml(str){
 }
 
 const DEFAULT_SETTINGS = {
-  businessName: 'Chaotically Organized AI',
+  businessName: 'Jason Manuel Wholesale',
   ownerName: 'Jason',
   phone: '(661) 610-9198',
   email: '',
-  address: '1712 19th St #216, Bakersfield CA',
-  website: 'chaoticallyorganizedai.com',
-  price: '$1,200',
+  address: 'Bakersfield, CA',
+  website: '',
+  price: 'Wholesale Pricing',
   tone: 'casual',
   aiProvider: 'gemini'
 };

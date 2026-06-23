@@ -14,41 +14,43 @@
 
 function buildPrompt(lead, type) {
   const signals = [];
-  if (!lead.hasWebsite)                          signals.push('no website on Google Maps');
+  if (!lead.hasWebsite)                          signals.push('no website or online store');
   if (lead.rating > 0 && lead.rating < 3.5)     signals.push(`only ${lead.rating} stars on Google`);
   if (lead.rating === 0)                         signals.push('zero star rating on Google');
   if (lead.reviews === 0)                        signals.push('zero customer reviews');
   else if (lead.reviews < 10)                    signals.push(`only ${lead.reviews} customer reviews`);
   if (!lead.hasPhone)                            signals.push('no phone number listed on Google');
-  const signalSummary = signals.length > 0 ? signals.join('; ') : 'digital presence that could be stronger';
+  const signalSummary = signals.length > 0 ? signals.join('; ') : 'likely struggling with supply and visibility';
 
   const formatInstructions = {
-    text:      'Write a SHORT text message / DM (max 90 words). Casual, direct, one clear ask at the end.',
-    email:     'Write a cold email. Include a Subject: line first. Body = 3 paragraphs max. Professional but human tone. End with one clear ask.',
-    voicemail: 'Write a voicemail script (~120 words, reads in under 60 seconds). Say the callback number (661) 610-9198 twice — once in the middle and once at the end.'
+    text:      'Write a SHORT text message / DM (max 90 words). Casual, direct, one clear ask at the end. Lead with the supply angle — you have products they need in stock NOW.',
+    email:     'Write a cold email. Include a Subject: line first. Body = 3 paragraphs max. Professional but human tone. End with one clear ask. Lead with the supply angle — you have products they need in stock NOW.',
+    voicemail: 'Write a voicemail script (~120 words, reads in under 60 seconds). Lead with the supply angle — you have products they need in stock NOW. Say the callback number (661) 610-9198 twice — once in the middle and once at the end.'
   };
 
-  return `You are writing outreach ON BEHALF OF Jason Manuel, founder of Chaotically Organized AI (chaoticallyorganizedai.com), based in Bakersfield, CA 93301.
+  return `You are writing outreach ON BEHALF OF Jason Manuel, a wholesale smoke shop and head shop product supplier based in Bakersfield, CA.
 
-Jason's value proposition: He builds fully sovereign websites and AI lead-capture systems for local service businesses. Starting at $1,200. Client owns everything outright — no monthly platform fees, no Wix, no rented land. He has a trades background (13 years in construction) so he speaks plain.
+Jason's value proposition: He supplies smoke shops, head shops, vape shops, tobacco shops, CBD stores, and glass shops with the products they need — pipes, glass, vape accessories, tobacco products, CBD, kratom, hookah supplies, and more. He has inventory IN STOCK and ready to ship or deliver locally. He works with shops that are in a bind — low on supply, can't get products from their usual distributors, or just need a reliable local source. No minimums for local shops. Competitive wholesale pricing.
 
 TARGET BUSINESS:
 Name: ${lead.name}
 Industry: ${lead.cat}
 Location: ${lead.address || 'Bakersfield area'}
-Their Specific Problems: ${signalSummary}
+What we know about them: ${signalSummary}
 
 TASK: ${formatInstructions[type] || formatInstructions.text}
 
 RULES:
-- Reference THEIR specific problem using the signals above — make it feel personal, not generic
-- Write from Jason's voice: direct, no fluff, no corporate speak
+- You are a SUPPLIER reaching out to a RETAIL STORE — NOT a web dev or marketing pitch
+- Reference what you can see about their shop (low reviews, no website, etc.) as a signal they may need better supply to compete
+- Write from Jason's voice: direct, no fluff, no corporate speak, sounds like a fellow business owner
 - Never open with "I hope this finds you well" or any similar filler
 - Never say "I understand" or "That's great"
-- Sound like a fellow local business owner, not a vendor
+- Sound like a supplier who has product ready to move, not a salesperson
+- Mention you have IN STOCK inventory ready to ship/deliver
 - Jason's phone: (661) 610-9198
-- Jason's website: chaoticallyorganizedai.com
-- Jason's address (for email only): 1712 19th St #216, Bakersfield CA 93301
+- Jason's location: Bakersfield, CA
+- Keep it short and actionable — the goal is to get them to call or reply
 
 OUTPUT: The message text only. No preamble, no quotes, no explanation.`;
 }
