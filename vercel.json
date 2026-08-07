@@ -4,12 +4,32 @@
     { "src": "api/search.js",   "use": "@vercel/node" },
     { "src": "api/scrape.js",  "use": "@vercel/node" },
     { "src": "api/outreach.js", "use": "@vercel/node" },
+    { "src": "api/audit.js", "use": "@vercel/node" },
+    { "src": "api/discover.js", "use": "@vercel/node" },
+    { "src": "api/stats.js", "use": "@vercel/node" },
+    { "src": "api/cron-discover.js", "use": "@vercel/node" },
+    { "src": "api/cron-audit.js", "use": "@vercel/node" },
+    { "src": "api/cron-qualify.js", "use": "@vercel/node" },
+    { "src": "api/cron-outreach.js", "use": "@vercel/node" },
     { "src": "index.html",      "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/search",   "dest": "/api/search.js"   },
     { "src": "/api/scrape",   "dest": "/api/scrape.js"   },
     { "src": "/api/outreach", "dest": "/api/outreach.js" },
+    { "src": "/api/audit",    "dest": "/api/audit.js"    },
+    { "src": "/api/discover", "dest": "/api/discover.js" },
+    { "src": "/api/stats",    "dest": "/api/stats.js"    },
+    { "src": "/api/cron-discover", "dest": "/api/cron-discover.js" },
+    { "src": "/api/cron-audit", "dest": "/api/cron-audit.js" },
+    { "src": "/api/cron-qualify", "dest": "/api/cron-qualify.js" },
+    { "src": "/api/cron-outreach", "dest": "/api/cron-outreach.js" },
     { "src": "/(.*)",         "dest": "/index.html"      }
+  ],
+  "crons": [
+    { "path": "/api/cron-discover", "schedule": "0 * * * *" },
+    { "path": "/api/cron-audit", "schedule": "5 * * * *" },
+    { "path": "/api/cron-qualify", "schedule": "10 * * * *" },
+    { "path": "/api/cron-outreach", "schedule": "15 * * * *" }
   ]
 }
