@@ -1,5 +1,5 @@
 // api/cron-outreach.js — hourly email outreach orchestrator
-const { query } = require('../lib/db');
+const { query, initSchema } = require('../lib/db');
 const nodemailer = require('nodemailer');
 
 const templates = {
@@ -19,6 +19,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    await initSchema();
     const leadResult = await query(
       `SELECT id, name, email, city, last_messaged
        FROM leads

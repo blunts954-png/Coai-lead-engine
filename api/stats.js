@@ -1,9 +1,10 @@
 // api/stats.js — Orchestrator dashboard stats
-const { query } = require('../lib/db');
+const { query, initSchema } = require('../lib/db');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Content-Type', 'application/json');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const password = process.env.APP_PASSWORD;
@@ -12,6 +13,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    await initSchema();
     const [
       discovered,
       audited,

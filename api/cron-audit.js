@@ -1,5 +1,5 @@
 // api/cron-audit.js — hourly website audit orchestrator
-const { query } = require('../lib/db');
+const { query, initSchema } = require('../lib/db');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +11,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    await initSchema();
     const leadResult = await query(
       `SELECT id, website FROM leads
        WHERE pipeline_stage = 'discovered' AND website IS NOT NULL AND audit_score IS NULL

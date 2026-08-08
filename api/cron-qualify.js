@@ -1,5 +1,5 @@
 // api/cron-qualify.js — hourly lead qualification orchestrator
-const { query } = require('../lib/db');
+const { query, initSchema } = require('../lib/db');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +11,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    await initSchema();
     const leadResult = await query(
       `SELECT id, audit_score, rating, reviews_count, phone, website, email
        FROM leads
